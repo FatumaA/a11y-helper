@@ -9,6 +9,8 @@
     "astro": "astro"
   },
   "dependencies": {
+    "@ai-sdk/anthropic": "^2.0.15",
+    "@ai-sdk/openai": "^2.0.28",
     "@astrojs/react": "^4.3.1",
     "@radix-ui/react-avatar": "^1.1.10",
     "@radix-ui/react-collapsible": "^1.1.12",
