@@ -10,5 +10,8 @@ export default defineConfig({
 	output: "server",
 	vite: {
 		plugins: [tailwindcss()],
+		ssr: {
+			noExternal: ["streamdown"],
+		},
 	},
 });
