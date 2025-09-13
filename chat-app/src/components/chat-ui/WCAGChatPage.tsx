@@ -53,7 +53,7 @@ export default function WCAGChatPage() {
 	};
 
 	return (
-		<div className="flex flex-col h-full max-h-screen w-full">
+		<div className="flex flex-col justify-center">
 			{/* Chat Messages */}
 			<Conversation className="flex-1 overflow-y-auto p-4 space-y-4">
 				{messages.length === 0 && (
@@ -65,15 +65,6 @@ export default function WCAGChatPage() {
 							<p className="mb-4">
 								Ask anything about web accessibility guidelines!
 							</p>
-							<div className="text-sm space-y-1">
-								<p>💡 Try asking about:</p>
-								<ul className="list-disc list-inside space-y-1 text-muted-foreground">
-									<li>Color contrast requirements</li>
-									<li>Keyboard navigation patterns</li>
-									<li>Screen reader compatibility</li>
-									<li>ARIA attributes and roles</li>
-								</ul>
-							</div>
 						</div>
 					</div>
 				)}

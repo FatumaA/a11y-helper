@@ -1,5 +1,6 @@
 ---
-
+import "../styles/global.css";
+import WCAGChatPage from "@/components/chat-ui/WCAGChatPage";
 ---
 
 <html lang="en">
@@ -8,9 +9,11 @@
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<meta name="viewport" content="width=device-width" />
 		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
+		<title>WCAG Chat</title>
 	</head>
-	<body>
-		<h1>Astro</h1>
+	<body class="min-h-screen flex items-center justify-center">
+		<div class="">
+			<WCAGChatPage client:load />
+		</div>
 	</body>
 </html>
