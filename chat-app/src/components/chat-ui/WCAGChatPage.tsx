@@ -104,30 +104,33 @@ export default function WCAGChatPage() {
 								})}
 
 								{/* Display Sources for assistant messages */}
-								{message.role === "assistant" && message.metadata?.sources && (
-									<Sources>
-										<SourcesTrigger count={message.metadata.sources.length}>
-											Used {message.metadata.sources.length} WCAG{" "}
-											{message.metadata.sources.length === 1
-												? "guideline"
-												: "guidelines"}
-										</SourcesTrigger>
-										<SourcesContent>
-											{message.metadata.sources.map(
-												(source: any, idx: number) => (
-													<Source
-														title={"WCAG Level" + source.level}
-														key={source.id || idx}
-														href={source.url}
-														target="_blank"
-														rel="noopener noreferrer"
-														className="block p-3 border rounded-lg hover:bg-muted/50 transition-colors"
-													></Source>
-												)
-											)}
-										</SourcesContent>
-									</Sources>
-								)}
+								{message.role === "assistant" &&
+									(message.metadata as any)?.sources && (
+										<Sources>
+											<SourcesTrigger
+												count={(message.metadata as any)?.sources.length}
+											>
+												Used {(message.metadata as any)?.sources.length} WCAG{" "}
+												{(message.metadata as any)?.sources.length === 1
+													? "guideline"
+													: "guidelines"}
+											</SourcesTrigger>
+											<SourcesContent>
+												{(message.metadata as any)?.sources.map(
+													(source: any, idx: number) => (
+														<Source
+															title={"WCAG Level" + source.level}
+															key={source.id || idx}
+															href={source.url}
+															target="_blank"
+															rel="noopener noreferrer"
+															className="block p-3 border rounded-lg hover:bg-muted/50 transition-colors"
+														></Source>
+													)
+												)}
+											</SourcesContent>
+										</Sources>
+									)}
 							</MessageContent>
 						</Message>
 					))}
