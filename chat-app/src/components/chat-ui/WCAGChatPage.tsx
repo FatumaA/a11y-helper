@@ -166,9 +166,8 @@ export default function WCAGChatPage() {
 							maxLength={500}
 							className="min-h-[60px]"
 						/>
-						<PromptInputToolbar className="flex justify-between items-center">
+						<PromptInputToolbar className="flex justify-between items-center mx-2">
 							<PromptInputTools className="flex items-center gap-2">
-								{/* Character count display */}
 								<span className="text-xs text-muted-foreground">
 									{input.length}/500
 								</span>
@@ -176,7 +175,6 @@ export default function WCAGChatPage() {
 							<PromptInputSubmit
 								disabled={!input.trim() || isLoading}
 								status={status}
-								className="px-6"
 							/>
 						</PromptInputToolbar>
 					</PromptInput>
