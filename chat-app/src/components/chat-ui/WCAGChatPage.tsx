@@ -53,7 +53,7 @@ export default function WCAGChatPage() {
 	};
 
 	return (
-		<div className="flex flex-col justify-center max-w-6xl mx-auto">
+		<div className="flex flex-col justify-center max-w-4xl mx-auto">
 			{/* Chat Messages */}
 			<Conversation className="flex-1 overflow-hidden p-4 space-y-4">
 				{messages.length === 0 && (
@@ -70,11 +70,7 @@ export default function WCAGChatPage() {
 				)}
 
 				{messages.map((message) => (
-					<Message
-						key={message.id}
-						from={message.role}
-						className={message.role === "user" ? "ml-12" : "mr-12"}
-					>
+					<Message key={message.id} from={message.role}>
 						<MessageContent
 							className={`
 							${
@@ -88,13 +84,11 @@ export default function WCAGChatPage() {
 							{message.parts.map((part, idx) => {
 								if (part.type === "text") {
 									return message.role === "assistant" ? (
-										<Response key={idx} className="prose prose-sm">
+										<Response key={idx} className="prose prose-sm ">
 											{part.text}
 										</Response>
 									) : (
-										<span key={idx} className="text-sm">
-											{part.text}
-										</span>
+										<div>{part.text}</div>
 									);
 								}
 							})}
@@ -131,22 +125,7 @@ export default function WCAGChatPage() {
 				{isLoading && (
 					<Message from="assistant" className="mr-12">
 						<MessageContent className="bg-background border rounded-lg p-4 shadow-sm">
-							<div className="flex items-center space-x-3">
-								<div className="flex space-x-1">
-									<div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
-									<div
-										className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"
-										style={{ animationDelay: "0.1s" }}
-									></div>
-									<div
-										className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"
-										style={{ animationDelay: "0.2s" }}
-									></div>
-								</div>
-								<span className="text-sm text-muted-foreground">
-									Searching WCAG guidelines...
-								</span>
-							</div>
+							Searching WCAG guidelines...
 						</MessageContent>
 					</Message>
 				)}
