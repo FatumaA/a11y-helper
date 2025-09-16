@@ -11,6 +11,13 @@ import {
 } from "@/components/ai-elements/sources";
 import { Button } from "../ui/button";
 import { DefaultChatTransport } from "ai";
+import {
+	PromptInput,
+	PromptInputSubmit,
+	PromptInputTextarea,
+	PromptInputToolbar,
+	PromptInputTools,
+} from "../ai-elements/prompt-input";
 
 const SUGGESTIONS = [
 	"How do I make buttons accessible?",
@@ -39,11 +46,13 @@ export default function WCAGChatPage() {
 	}, [messages, isLoading]);
 
 	// Handle form submission
-	const handleSubmit = (e: React.FormEvent) => {
-		e.preventDefault();
-		if (!input.trim() || isLoading) return;
-
-		sendMessage({ text: input });
+	const handleSubmit = (
+		message: { text?: string },
+		event: React.FormEvent<HTMLFormElement>
+	) => {
+		event.preventDefault();
+		if (!message.text?.trim() || isLoading) return;
+		sendMessage({ text: message.text });
 		setInput("");
 	};
 
@@ -148,66 +157,49 @@ export default function WCAGChatPage() {
 
 				{/* Input Section */}
 				<div className="border-t bg-background/80 backdrop-blur-sm p-4">
-					<form onSubmit={handleSubmit} className="space-y-3">
-						<div className="flex gap-3">
-							<div className="flex-1 relative">
-								<input
-									value={input}
-									onChange={(e) => setInput(e.target.value)}
-									placeholder="Ask about WCAG guidelines, accessibility, or code examples..."
-									disabled={isLoading}
-									className="w-full p-3 pr-12 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 bg-background"
-									maxLength={500}
-								/>
-								<span className="absolute right-3 top-3 text-xs text-muted-foreground">
+					<PromptInput onSubmit={handleSubmit} className="space-y-3">
+						<PromptInputTextarea
+							value={input}
+							onChange={(e) => setInput(e.target.value)}
+							placeholder="Ask about WCAG guidelines, accessibility, or code examples..."
+							disabled={isLoading}
+							maxLength={500}
+							className="min-h-[60px]"
+						/>
+						<PromptInputToolbar className="flex justify-between items-center">
+							<PromptInputTools className="flex items-center gap-2">
+								{/* Character count display */}
+								<span className="text-xs text-muted-foreground">
 									{input.length}/500
 								</span>
-							</div>
-							<Button
-								type="submit"
+							</PromptInputTools>
+							<PromptInputSubmit
 								disabled={!input.trim() || isLoading}
-								className="px-6 py-3 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg disabled:opacity-50 flex items-center gap-2"
-							>
-								{isLoading ? (
-									<div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-								) : (
-									<svg
-										className="w-4 h-4"
-										fill="none"
-										stroke="currentColor"
-										viewBox="0 0 24 24"
-									>
-										<path
-											strokeLinecap="round"
-											strokeLinejoin="round"
-											strokeWidth={2}
-											d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
-										/>
-									</svg>
-								)}
-								Send
-							</Button>
-						</div>
+								status={status}
+								className="px-6"
+							/>
+						</PromptInputToolbar>
+					</PromptInput>
 
-						{/* Suggestion Pills */}
-						{messages.length === 0 && (
-							<div className="flex gap-2 flex-wrap justify-center">
-								{SUGGESTIONS.map((suggestion) => (
-									<Button
-										key={suggestion}
-										type="button"
-										variant="outline"
-										size="sm"
-										onClick={() => handleSuggestionClick(suggestion)}
-										disabled={isLoading}
-										className="text-xs hover:bg-muted"
-									>
-										{suggestion}
-									</Button>
-								))}
-							</div>
-						)}
-					</form>
+					{/* Suggestion Pills */}
+					{messages.length === 0 && (
+						<div className="flex gap-2 flex-wrap justify-center mt-3">
+							{SUGGESTIONS.map((suggestion) => (
+								<Button
+									key={suggestion}
+									type="button"
+									variant="outline"
+									size="sm"
+									onClick={() => handleSuggestionClick(suggestion)}
+									disabled={isLoading}
+									className="text-xs hover:bg-muted"
+								>
+									{suggestion}
+								</Button>
+							))}
+						</div>
+					)}
+					{/* </form> */}
 				</div>
 			</div>
 		</div>
