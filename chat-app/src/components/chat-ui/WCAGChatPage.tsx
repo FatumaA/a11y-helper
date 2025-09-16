@@ -53,9 +53,9 @@ export default function WCAGChatPage() {
 	};
 
 	return (
-		<div className="flex flex-col justify-center">
+		<div className="flex flex-col justify-center max-w-6xl mx-auto">
 			{/* Chat Messages */}
-			<Conversation className="flex-1 overflow-y-auto p-4 space-y-4">
+			<Conversation className="flex-1 overflow-hidden p-4 space-y-4">
 				{messages.length === 0 && (
 					<div className="text-center text-muted-foreground mt-10">
 						<div className="max-w-md mx-auto">
@@ -88,7 +88,7 @@ export default function WCAGChatPage() {
 							{message.parts.map((part, idx) => {
 								if (part.type === "text") {
 									return message.role === "assistant" ? (
-										<Response key={idx} className="prose prose-sm max-w-none">
+										<Response key={idx} className="prose prose-sm">
 											{part.text}
 										</Response>
 									) : (
@@ -97,14 +97,6 @@ export default function WCAGChatPage() {
 										</span>
 									);
 								}
-								return (
-									<pre
-										key={idx}
-										className="text-xs text-gray-500 bg-gray-100 p-2 rounded"
-									>
-										{JSON.stringify(part, null, 2)}
-									</pre>
-								);
 							})}
 
 							{/* Display Sources for assistant messages */}
@@ -152,7 +144,7 @@ export default function WCAGChatPage() {
 									></div>
 								</div>
 								<span className="text-sm text-muted-foreground">
-									Searching WCAG guidelines and generating response...
+									Searching WCAG guidelines...
 								</span>
 							</div>
 						</MessageContent>
@@ -176,7 +168,7 @@ export default function WCAGChatPage() {
 
 			{/* Input Section */}
 			<div className="border-t bg-background/80 backdrop-blur-sm p-4">
-				<form onSubmit={handleSubmit} className="space-y-3 max-w-4xl mx-auto">
+				<form onSubmit={handleSubmit} className="space-y-3">
 					<div className="flex gap-3">
 						<div className="flex-1 relative">
 							<input
