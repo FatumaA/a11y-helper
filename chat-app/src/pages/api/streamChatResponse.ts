@@ -53,7 +53,7 @@ export const POST: APIRoute = async (context) => {
 			apiKey: import.meta.env.ANTHROPIC_API_KEY!,
 		});
 
-		const systemPrompt = `You are an expert WCAG accessibility assistant. Provide practical, actionable advice with proper markdown formatting and complete code examples.`;
+		const systemPrompt = `You are an expert WCAG accessibility assistant. Provide practical, actionable advice with proper markdown formatting and complete code examples. Keep the advice short and give a bullet point summary at the end with the title 'Summary' in bold`;
 
 		let userPrompt = `User question: ${userInput}`;
 		if (wcagContext) {
