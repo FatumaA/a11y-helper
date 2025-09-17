@@ -1,0 +1,23 @@
+---
+import "../styles/global.css";
+import { ClientRouter } from "astro:transitions";
+import Header from "@/components/blocks/Header";
+---
+
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta
+			name="description"
+			content="WCAG Accessibility Assistant - Get expert help with web accessibility guidelines"
+		/>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<title>WCAG Chat</title>
+		<ClientRouter />
+	</head>
+	<body>
+		<Header client:load />
+		<slot />
+	</body>
+</html>
