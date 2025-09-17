@@ -2,6 +2,25 @@
 import "../styles/global.css";
 import { ClientRouter } from "astro:transitions";
 import Header from "@/components/blocks/Header";
+import { supabaseServerClient } from "@/lib/supabase";
+
+// Create server client
+const supabaseBE = supabaseServerClient({
+	request: Astro.request,
+	cookies: Astro.cookies,
+});
+
+const {
+	data: { user },
+} = await supabaseBE.auth.getUser();
+
+const activeUser =
+	// user;
+	{
+		name: "faker",
+		email: "faker@gmailcom",
+		id: "xfeurthjnv",
+	};
 ---
 
 <html lang="en">
@@ -17,7 +36,7 @@ import Header from "@/components/blocks/Header";
 		<ClientRouter />
 	</head>
 	<body>
-		<Header client:load />
+		<Header user={activeUser} client:load />
 		<slot />
 	</body>
 </html>
