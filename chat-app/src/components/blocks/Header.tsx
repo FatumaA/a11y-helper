@@ -1,7 +1,7 @@
-import React from "react";
-import { Button } from "../ui/button";
-import { navigate } from "astro/virtual-modules/transitions-router.js";
 import { actions } from "astro:actions";
+import { navigate } from "astro/virtual-modules/transitions-router.js";
+import { type User } from "@supabase/supabase-js";
+import { Button } from "../ui/button";
 import { toast, Toaster } from "sonner";
 
 const enum AuthAction {
@@ -9,8 +9,7 @@ const enum AuthAction {
 	SIGN_UP = "sign-up",
 }
 
-const Header = ({ user }) => {
-	console.log("USERRRR", user);
+const Header = ({ user }: { user: User | null }) => {
 	const handleAuth = (actionType: AuthAction) => {
 		navigate("/auth", { state: { actionType } });
 	};
@@ -30,10 +29,9 @@ const Header = ({ user }) => {
 	return (
 		<div className="flex justify-between my-4 mx-8">
 			<h1>Logo</h1>
-			<Toaster richColors position="top-center" />
 			{isSignedIn ? (
 				<div className="flex items-center gap-4">
-					<p>{user.email}</p>
+					<p>{user?.email}</p>
 					<Button
 						className="cursor-pointer"
 						variant="outline"
