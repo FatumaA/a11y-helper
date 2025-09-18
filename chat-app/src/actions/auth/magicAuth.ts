@@ -40,8 +40,10 @@ const magicSignIn = async (
 				message: "Check your email for the login link!",
 			};
 		}
-	} catch (err) {
-		console.error("SignIn action other error", err);
+	} catch (error) {
+		console.error(
+			error instanceof Error ? error.message : "SignIn action other error"
+		);
 		return {
 			success: false,
 			message: "Unexpected error",
