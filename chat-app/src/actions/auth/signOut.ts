@@ -16,7 +16,7 @@ const authSignOut = async (context: ActionAPIContext) => {
 			console.error("Supabase Sign out error - ", error);
 			return {
 				success: false,
-				message: error.message,
+				message: "Sign out error, please try again.",
 			};
 		} else {
 			// The server client will handle cookie removal automatically
