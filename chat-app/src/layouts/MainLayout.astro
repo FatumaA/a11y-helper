@@ -3,6 +3,7 @@ import "../styles/global.css";
 import { ClientRouter } from "astro:transitions";
 import Header from "@/components/blocks/header";
 import { supabaseServerClient } from "@/lib/supabase";
+import { Toaster } from "@/components/ui/sonner";
 
 const { hideHeader = false } = Astro.props;
 
@@ -31,7 +32,9 @@ const activeUser = user;
 		<ClientRouter />
 	</head>
 	<body>
+		<Toaster richColors position="top-center" client:only="react" />
 		{!hideHeader && <Header user={activeUser} client:load />}
+
 		<slot />
 	</body>
 </html>

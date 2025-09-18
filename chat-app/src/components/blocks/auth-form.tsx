@@ -46,6 +46,8 @@ export function AuthForm({
 			const { data } = await actions.magicAuth(formData);
 			if (data?.success) {
 				toast.success(data.message);
+			} else {
+				toast.error("Sign in error, please try again.");
 			}
 		} catch (error: unknown) {
 			toast.error("An error occurred, please try again.");
@@ -83,7 +85,6 @@ export function AuthForm({
 			)}
 			{...props}
 		>
-			<Toaster richColors position="top-center" />
 			<Card>
 				<CardHeader>
 					<CardTitle className="text-2xl">
