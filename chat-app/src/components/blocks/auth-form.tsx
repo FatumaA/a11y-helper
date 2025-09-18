@@ -11,6 +11,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useEffect, useState } from "react";
+import { actions } from "astro:actions";
+import { toast, Toaster } from "sonner";
 
 export function AuthForm({
 	className,
@@ -35,36 +37,35 @@ export function AuthForm({
 	const handleMagicLinkLogin = async (e: React.FormEvent) => {
 		e.preventDefault();
 		setIsLoading(true);
-		setError(null);
+
+		const formData = new FormData();
+		formData.append("email", email);
 
 		try {
-			const { error } = await supabase.auth.signInWithOtp({
-				email,
-			});
-			if (error) throw error;
-			setError("Check your email for the magic link!");
+			const { data } = await actions.magicAuth(formData);
+			if (data?.success) {
+				toast.success(data.message);
+			}
 		} catch (error: unknown) {
-			setError(error instanceof Error ? error.message : "An error occurred");
-		} finally {
+			toast.error("An error occurred, please try again.");
 			setIsLoading(false);
 		}
 	};
 
-	const handleGoogleLogin = async () => {
-		setIsLoading(true);
-		setError(null);
+	// const handleGoogleLogin = async () => {
+	// 	setIsLoading(true);
+	// 	setError(null);
 
-		try {
-			const { error } = await supabase.auth.signInWithOAuth({
-				provider: "google",
-			});
-			if (error) throw error;
-			// Supabase will redirect automatically
-		} catch (error: unknown) {
-			setError(error instanceof Error ? error.message : "An error occurred");
-			setIsLoading(false);
-		}
-	};
+	// 	try {
+	// 		const { data } = await actions.socialAuth();
+	// 		if (data?.success) {
+	// 			toast.success(data.message);
+	// 		}
+	// 	} catch (error: unknown) {
+	// 		toast.error("An error occurred, please try again.");
+	// 		setIsLoading(false);
+	// 	}
+	// };
 
 	const isSignUp = actionType === "sign-up";
 
@@ -76,6 +77,7 @@ export function AuthForm({
 			)}
 			{...props}
 		>
+			<Toaster richColors position="top-center" />
 			<Card>
 				<CardHeader>
 					<CardTitle className="text-2xl">
@@ -123,7 +125,7 @@ export function AuthForm({
 								className="w-full"
 								variant="outline"
 								disabled={isLoading}
-								onClick={handleGoogleLogin}
+								// onClick={handleGoogleLogin}
 							>
 								{isSignUp
 									? "Continue with Google (Sign Up)"
