@@ -52,20 +52,26 @@ export function AuthForm({
 		}
 	};
 
-	// const handleGoogleLogin = async () => {
-	// 	setIsLoading(true);
-	// 	setError(null);
+	const handleGoogleLogin = async () => {
+		setIsLoading(true);
+		setError(null);
 
-	// 	try {
-	// 		const { data } = await actions.socialAuth();
-	// 		if (data?.success) {
-	// 			toast.success(data.message);
-	// 		}
-	// 	} catch (error: unknown) {
-	// 		toast.error("An error occurred, please try again.");
-	// 		setIsLoading(false);
-	// 	}
-	// };
+		try {
+			const { error } = await supabase.auth.signInWithOAuth({
+				provider: "google",
+				options: {
+					redirectTo: window.location.origin + "/api/auth/confirm",
+				},
+			});
+			if (error) {
+				toast.error("Google sign in error, please try again.");
+			}
+			// No need for toast.success, user will be redirected
+		} catch (error: unknown) {
+			toast.error("An error occurred, please try again.");
+			setIsLoading(false);
+		}
+	};
 
 	const isSignUp = actionType === "sign-up";
 
@@ -115,24 +121,24 @@ export function AuthForm({
 									? "Send Sign Up Link"
 									: "Send Sign In Link"}
 							</Button>
-							<div className="relative flex items-center my-4">
-								<span className="flex-grow border-t" />
-								<span className="mx-2 text-xs text-muted-foreground">or</span>
-								<span className="flex-grow border-t" />
-							</div>
-							<Button
-								type="button"
-								className="w-full"
-								variant="outline"
-								disabled={isLoading}
-								// onClick={handleGoogleLogin}
-							>
-								{isSignUp
-									? "Continue with Google (Sign Up)"
-									: "Continue with Google"}
-							</Button>
 						</div>
 					</form>
+					<div className="relative flex items-center my-4">
+						<span className="flex-grow border-t" />
+						<span className="mx-2 text-xs text-muted-foreground">or</span>
+						<span className="flex-grow border-t" />
+					</div>
+					<Button
+						type="button"
+						className="w-full"
+						variant="outline"
+						disabled={isLoading}
+						onClick={handleGoogleLogin}
+					>
+						{isSignUp
+							? "Continue with Google (Sign Up)"
+							: "Continue with Google"}
+					</Button>
 				</CardContent>
 			</Card>
 		</div>
