@@ -1,6 +1,8 @@
 import React from "react";
 import { Button } from "../ui/button";
 import { navigate } from "astro/virtual-modules/transitions-router.js";
+import { actions } from "astro:actions";
+import { toast, Toaster } from "sonner";
 
 const enum AuthAction {
 	SIGN_IN = "sign-in",
@@ -13,13 +15,22 @@ const Header = ({ user }) => {
 		navigate("/auth", { state: { actionType } });
 	};
 
-	const handleSignOut = () => {};
+	const handleSignOut = async () => {
+		try {
+			const { data } = await actions.signOut();
+			if (data?.success) {
+				toast.success(data.message);
+			}
+		} catch (error: unknown) {
+			toast.error("An error occurred, please try again.");
+		}
+	};
 
 	const isSignedIn = user ? true : false;
 	return (
 		<div className="flex justify-between my-4 mx-8">
 			<h1>Logo</h1>
-
+			<Toaster richColors position="top-center" />
 			{isSignedIn ? (
 				<div className="flex items-center gap-4">
 					<p>{user.email}</p>
