@@ -20,7 +20,8 @@ export function AuthForm({
 }: React.ComponentPropsWithoutRef<"div">) {
 	const [email, setEmail] = useState("");
 	const [error, setError] = useState<string | null>(null);
-	const [isLoading, setIsLoading] = useState(false);
+	const [isMagicLoading, setIsMagicLoading] = useState(false);
+	const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 	const [actionType, setActionType] = useState<string>("sign-in");
 
 	useEffect(() => {
@@ -36,7 +37,7 @@ export function AuthForm({
 
 	const handleMagicLinkLogin = async (e: React.FormEvent) => {
 		e.preventDefault();
-		setIsLoading(true);
+		setIsMagicLoading(true);
 
 		const formData = new FormData();
 		formData.append("email", email);
@@ -48,12 +49,12 @@ export function AuthForm({
 			}
 		} catch (error: unknown) {
 			toast.error("An error occurred, please try again.");
-			setIsLoading(false);
+			setIsMagicLoading(false);
 		}
 	};
 
 	const handleGoogleLogin = async () => {
-		setIsLoading(true);
+		setIsGoogleLoading(true);
 		setError(null);
 
 		try {
@@ -66,10 +67,9 @@ export function AuthForm({
 			if (error) {
 				toast.error("Google sign in error, please try again.");
 			}
-			// No need for toast.success, user will be redirected
 		} catch (error: unknown) {
 			toast.error("An error occurred, please try again.");
-			setIsLoading(false);
+			setIsGoogleLoading(false);
 		}
 	};
 
@@ -112,8 +112,12 @@ export function AuthForm({
 								/>
 							</div>
 							{error && <p className="text-sm text-red-500">{error}</p>}
-							<Button type="submit" className="w-full" disabled={isLoading}>
-								{isLoading
+							<Button
+								type="submit"
+								className="w-full"
+								disabled={isMagicLoading}
+							>
+								{isMagicLoading
 									? isSignUp
 										? "Sending..."
 										: "Sending..."
@@ -132,10 +136,12 @@ export function AuthForm({
 						type="button"
 						className="w-full"
 						variant="outline"
-						disabled={isLoading}
+						disabled={isGoogleLoading}
 						onClick={handleGoogleLogin}
 					>
-						{isSignUp
+						{isGoogleLoading
+							? "Redirecting..."
+							: isSignUp
 							? "Continue with Google (Sign Up)"
 							: "Continue with Google"}
 					</Button>
