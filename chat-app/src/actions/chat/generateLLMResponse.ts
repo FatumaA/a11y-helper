@@ -1,15 +1,19 @@
-import { defineAction } from "astro:actions";
+import { defineAction, type ActionAPIContext } from "astro:actions";
 import { z } from "astro:schema";
 import { createClient } from "@supabase/supabase-js";
 import { embedMany } from "ai";
 import { createCohere } from "@ai-sdk/cohere";
+import { supabasePrivateClient } from "@/lib/supabase";
 
-const generateLLMResponse = async (userInput: string) => {
+const generateLLMResponse = async (
+	userInput: string,
+	context: ActionAPIContext
+) => {
 	try {
-		const supabase = createClient(
-			import.meta.env.SUPABASE_URL,
-			import.meta.env.SUPABASE_ANON_KEY
-		);
+		const supabase = supabasePrivateClient({
+			request: context.request,
+			cookies: context.cookies,
+		});
 
 		const cohere = createCohere({ apiKey: import.meta.env.COHERE_API_KEY });
 
@@ -66,9 +70,10 @@ export const generateResponse = defineAction({
 			.min(1, "Please enter a question")
 			.max(500, "Question too long"),
 	}),
-	handler: async ({
-		userInput,
-	}): Promise<{
+	handler: async (
+		{ userInput },
+		context
+	): Promise<{
 		success: boolean;
 		message: {
 			userInput: string;
@@ -76,6 +81,6 @@ export const generateResponse = defineAction({
 			error?: string;
 		};
 	}> => {
-		return await generateLLMResponse(userInput);
+		return await generateLLMResponse(userInput, context);
 	},
 });
