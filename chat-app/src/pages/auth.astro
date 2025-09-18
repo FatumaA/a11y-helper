@@ -1,7 +1,8 @@
 ---
+import { AuthForm } from "@/components/blocks/auth-form";
 import MainLayout from "@/layouts/MainLayout.astro";
 ---
 
 <MainLayout>
-	<h1>AUTH PAGE</h1>
+	<AuthForm client:load />
 </MainLayout>
