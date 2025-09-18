@@ -70,7 +70,10 @@ export function AuthForm({
 
 	return (
 		<div
-			className={cn("flex flex-col gap-6 max-w-3xl mx-auto w-full", className)}
+			className={cn(
+				"flex flex-col gap-6 max-w-3xl mx-auto mt-38 w-full",
+				className
+			)}
 			{...props}
 		>
 			<Card>
