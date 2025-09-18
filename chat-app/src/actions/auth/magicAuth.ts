@@ -31,7 +31,7 @@ const magicSignIn = async (
 			console.error("Sign in error - magiclink", error);
 			return {
 				success: false,
-				message: error.message,
+				message: "Sign in error, please try again.",
 			};
 		} else {
 			console.log("Sign in success - magiclink");
