@@ -1,0 +1,10 @@
+---
+import MainLayout from "./MainLayout.astro";
+import { AuthedSidebar } from "../components/blocks/authed-sidebar";
+---
+
+<MainLayout>
+	<AuthedSidebar client:load>
+		<slot />
+	</AuthedSidebar>
+</MainLayout>
