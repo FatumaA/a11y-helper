@@ -1,9 +1,9 @@
 ---
 import WCAGChatPage from "@/components/chat-ui/WCAGChatPage";
+import AuthedChatLayout from "@/layouts/AuthedChatLayout.astro";
 import MainLayout from "@/layouts/MainLayout.astro";
 ---
 
-<MainLayout>
-	<h2>Hello, chat sub page here!!</h2>
+<AuthedChatLayout>
 	<WCAGChatPage client:load />
-</MainLayout>
+</AuthedChatLayout>
