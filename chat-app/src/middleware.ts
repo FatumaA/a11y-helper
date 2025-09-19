@@ -26,7 +26,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 	}
 
 	// redirect authed users to chat from auth page
-	if (pathname === "/auth" && isActiveUser) {
+	if ((pathname === "/auth" || pathname === "/") && isActiveUser) {
 		return context.redirect("/chat");
 	}
 
