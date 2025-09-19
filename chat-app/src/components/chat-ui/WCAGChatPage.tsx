@@ -18,6 +18,8 @@ import {
 	PromptInputToolbar,
 	PromptInputTools,
 } from "../ai-elements/prompt-input";
+import { type User } from "@supabase/supabase-js";
+import { actions } from "astro:actions"; // Astro injects this at runtime
 
 const SUGGESTIONS = [
 	"How do I make buttons accessible?",
@@ -25,10 +27,22 @@ const SUGGESTIONS = [
 	"WCAG 2.1.1 keyboard navigation",
 ];
 
-export default function WCAGChatPage() {
+export default function WCAGChatPage({
+	user,
+	initialMessages = [],
+	activeChatId,
+}: {
+	user: User | null;
+	initialMessages?: Array<any>;
+	activeChatId?: string;
+}) {
 	const [input, setInput] = useState("");
+	const [loadingState, setLoadingState] = useState<
+		"loading" | "migrating" | "ready"
+	>("loading");
+	const [persistedIds, setPersistedIds] = useState<Set<string>>(new Set());
 
-	const { messages, sendMessage, status, error } = useChat({
+	const { messages, setMessages, sendMessage, status, error } = useChat({
 		transport: new DefaultChatTransport({
 			api: "/api/streamChatResponse",
 		}),
@@ -38,21 +52,146 @@ export default function WCAGChatPage() {
 	});
 
 	const isLoading = status === "streaming";
+	const chatEndRef = useRef<HTMLDivElement | null>(null);
+
+	// Initialization & migration effect
+
+	const didInitRef = useRef(false);
+
+	useEffect(() => {
+		if (didInitRef.current) return; // Prevent running more than once
+		const tempChatData = JSON.parse(localStorage.getItem("temp-chat") || "{}");
+
+		// Only migrate if user just signed in and there are messages to migrate
+		if (user?.id && tempChatData.messages?.length > 0) {
+			setLoadingState("migrating");
+			(async () => {
+				try {
+					const result = await actions.migrateChat({
+						messages: tempChatData.messages.map((msg: any, idx: number) => ({
+							content: msg.content,
+							role: msg.role,
+							timestamp: msg.timestamp,
+							message_id: msg.message_id,
+						})),
+					});
+					if (result.data?.success && result.data.message) {
+						localStorage.removeItem("temp-chat");
+						window.location.replace(`/chat/${result.data.message}`);
+						return;
+					}
+				} catch {}
+				setLoadingState("ready");
+			})();
+		} else {
+			let newMessages = [];
+			if (!user?.id && tempChatData.messages?.length > 0) {
+				newMessages = tempChatData.messages.map((msg: any, idx: number) => ({
+					// id: msg.message_id,
+					message_id: msg.message_id,
+					role: msg.role,
+					parts: [{ type: "text", text: msg.content }],
+					createdAt: new Date(msg.timestamp),
+				}));
+			} else if (initialMessages.length > 0) {
+				newMessages = initialMessages;
+			}
+			// Only set if different
+			if (
+				newMessages.length > 0 &&
+				JSON.stringify(messages) !== JSON.stringify(newMessages)
+			) {
+				setMessages(newMessages);
+			}
+			setLoadingState("ready");
+		}
+		didInitRef.current = true;
+		// eslint-disable-next-line
+	}, [user?.id, initialMessages]); // Don't add messages as a dependency
+	// Save messages to localStorage (anonymous only)
+	useEffect(() => {
+		if (!user?.id && messages.length > 0) {
+			localStorage.setItem(
+				"temp-chat",
+				JSON.stringify({
+					messages: messages.map((msg) => ({
+						content: msg.parts
+							.filter((p) => p.type === "text")
+							.map((p) => p.text)
+							.join(" "),
+						role: msg.role,
+						timestamp: new Date().toISOString(),
+						message_id: msg.id,
+					})),
+					createdAt: Date.now(),
+				})
+			);
+		}
+	}, [messages, user]);
 
 	// Scroll to bottom on new messages
-	const chatEndRef = useRef<HTMLDivElement | null>(null);
 	useEffect(() => {
 		chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
 	}, [messages, isLoading]);
 
+	// Sync messages to DB if authed and in a chat thread
+	const persistedIdsRef = useRef<Set<string>>(new Set());
+
+	useEffect(() => {
+		if (
+			!user?.id ||
+			!activeChatId ||
+			messages.length === 0 ||
+			status === "streaming" // <-- Only sync when not streaming
+		)
+			return;
+
+		const unsyncedMessages = messages.filter(
+			(msg) =>
+				!persistedIds.has(msg.id) &&
+				(msg.role === "user" ||
+					(msg.role === "assistant" &&
+						msg.parts.some(
+							(p) => p.type === "text" && p.text && p.text.trim()
+						)))
+		);
+
+		if (unsyncedMessages.length === 0) return;
+
+		(async () => {
+			let didUpdate = false;
+			const newIds = new Set(persistedIds);
+			for (const msg of unsyncedMessages) {
+				// Only sync messages with role "user" or "assistant"
+				if (msg.role !== "user" && msg.role !== "assistant") continue;
+				try {
+					await actions.insertChatMsg({
+						chat_id: activeChatId,
+						role: msg.role, // Now guaranteed to be "user" or "assistant"
+						content: msg.parts
+							.filter((p) => p.type === "text")
+							.map((p) => p.text)
+							.join(" "),
+						message_id: msg.id,
+					});
+					newIds.add(msg.id);
+					didUpdate = true;
+				} catch (err) {
+					console.error("Failed to sync message", msg.id, err);
+				}
+			}
+			if (didUpdate) setPersistedIds(newIds);
+		})();
+	}, [messages, user, activeChatId, persistedIds, status]);
+
 	// Handle form submission
-	const handleSubmit = (
+	const handleSubmit = async (
 		message: { text?: string },
 		event: React.FormEvent<HTMLFormElement>
 	) => {
 		event.preventDefault();
 		if (!message.text?.trim() || isLoading) return;
-		sendMessage({ text: message.text });
+		await sendMessage({ text: message.text });
 		setInput("");
 	};
 
@@ -60,6 +199,21 @@ export default function WCAGChatPage() {
 	const handleSuggestionClick = (suggestion: string) => {
 		setInput(suggestion);
 	};
+
+	// Don't render until we've checked localStorage or if migrating
+	if (loadingState === "loading" || loadingState === "migrating") {
+		return (
+			<div className="flex flex-col max-w-4xl w-full">
+				<div className="flex items-center justify-center min-h-96">
+					<div className="animate-pulse text-muted-foreground">
+						{loadingState === "migrating"
+							? "Migrating your conversation..."
+							: "Loading..."}
+					</div>
+				</div>
+			</div>
+		);
+	}
 
 	return (
 		<div className="flex flex-col max-w-4xl w-full">
@@ -199,7 +353,6 @@ export default function WCAGChatPage() {
 						))}
 					</div>
 				)}
-				{/* </form> */}
 			</div>
 		</div>
 	);
