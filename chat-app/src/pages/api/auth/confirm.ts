@@ -26,5 +26,5 @@ export const GET: APIRoute = async ({ url, cookies, redirect, request }) => {
 	// No need to manually set cookies as they are now handled by the createBEClient
 	// The cookie management is now handled by the Supabase SSR client
 
-	return redirect("/");
+	return redirect("/chat");
 };
