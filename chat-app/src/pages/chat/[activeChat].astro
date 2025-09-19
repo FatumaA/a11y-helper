@@ -1,7 +1,41 @@
 ---
 import WCAGChatPage from "@/components/chat-ui/WCAGChatPage";
 import AuthedChatLayout from "@/layouts/AuthedChatLayout.astro";
-import MainLayout from "@/layouts/MainLayout.astro";
+import { supabaseServerClient } from "@/lib/supabase";
+
+const supabaseBE = supabaseServerClient({
+	request: Astro.request,
+	cookies: Astro.cookies,
+});
+
+const {
+	data: { user },
+} = await supabaseBE.auth.getUser();
+
+const activeUser = user;
+const { activeChat } = Astro.params;
+
+// Fetch messages for this chat
+const { data: chatMessages, error: chatMessagesError } = await supabaseBE
+	.from("chat_messages")
+	.select("*")
+	.eq("chat_id", activeChat)
+	.order("created_at", { ascending: true });
+
+const messages =
+	chatMessages?.map((msg) => ({
+		id: msg.id,
+		role: msg.role,
+		parts: [{ type: "text", text: msg.message_content }],
+		createdAt: new Date(msg.created_at),
+	})) ?? [];
 ---
 
-<AuthedChatLayout />
+<AuthedChatLayout>
+	<WCAGChatPage
+		client:load
+		user={activeUser}
+		initialMessages={messages}
+		activeChatId={activeChat}
+	/>
+</AuthedChatLayout>

@@ -1,9 +1,20 @@
 ---
 import WCAGChatPage from "@/components/chat-ui/WCAGChatPage";
 import AuthedChatLayout from "@/layouts/AuthedChatLayout.astro";
-import MainLayout from "@/layouts/MainLayout.astro";
+import { supabaseServerClient } from "@/lib/supabase";
+
+const supabaseBE = supabaseServerClient({
+	request: Astro.request,
+	cookies: Astro.cookies,
+});
+
+const {
+	data: { user },
+} = await supabaseBE.auth.getUser();
+
+const activeUser = user;
 ---
 
 <AuthedChatLayout>
-	<WCAGChatPage client:load />
+	<WCAGChatPage client:load user={activeUser} />
 </AuthedChatLayout>
