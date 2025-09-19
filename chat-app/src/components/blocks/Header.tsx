@@ -2,7 +2,7 @@ import { actions } from "astro:actions";
 import { navigate } from "astro/virtual-modules/transitions-router.js";
 import { type User } from "@supabase/supabase-js";
 import { Button } from "../ui/button";
-import { toast, Toaster } from "sonner";
+import { toast } from "sonner";
 
 const enum AuthAction {
 	SIGN_IN = "sign-in",
