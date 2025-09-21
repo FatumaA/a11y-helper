@@ -136,7 +136,10 @@ export function AppSidebar() {
 	React.useEffect(() => {
 		const fetchChats = async () => {
 			try {
-				const res = await actions.readChats();
+				if (!user?.id) {
+					toast.error("Oops, please try again");
+				}
+				const res = await actions.readChats({ activeUserId: user!.id });
 
 				if (res.data?.message) {
 					setChats(res.data.message as Chat[]); // message contains your DB rows
