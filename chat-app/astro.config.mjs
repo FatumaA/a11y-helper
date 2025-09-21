@@ -1,5 +1,6 @@
 // @ts-check
 import { defineConfig } from "astro/config";
+import { resolve } from "path";
 
 import react from "@astrojs/react";
 import tailwindcss from "@tailwindcss/vite";
@@ -13,13 +14,15 @@ export default defineConfig({
 
 	vite: {
 		plugins: [tailwindcss()],
+		resolve: {
+			alias: {
+				"@": resolve("./src"),
+				"@/": resolve("./src") + "/",
+			},
+		},
 		ssr: {
 			noExternal: ["streamdown"],
-			// external: ["stream", "http", "https", "url", "zlib", "punycode"],
 		},
-		// build: {
-		// 	target: "node16",
-		// },
 	},
 
 	adapter: netlify({
