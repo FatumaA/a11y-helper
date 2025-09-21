@@ -15,10 +15,14 @@ export default defineConfig({
 		plugins: [tailwindcss()],
 		ssr: {
 			noExternal: ["streamdown"],
+			// external: ["stream", "http", "https", "url", "zlib", "punycode"],
 		},
+		// build: {
+		// 	target: "node16",
+		// },
 	},
 
 	adapter: netlify({
-		edgeMiddleware: true,
+		// edgeMiddleware: true,
 	}),
 });
