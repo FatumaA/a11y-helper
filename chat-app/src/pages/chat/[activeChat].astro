@@ -16,14 +16,16 @@ const {
 const activeUser = user;
 const { activeChatId } = Astro.params;
 
-if (!activeChatId || typeof activeChatId !== "string") {
+if (!activeChatId) {
 	Astro.redirect("/chat");
 }
-// Fetch messages for this chat
-const { data: chatMessages, error: chatMessagesError } =
-	await actions.readChatMsgs({ activeChatId: activeChatId as string });
 
-const chatMsgs = chatMessages?.message ?? [];
+const { data: chatMessages, error: chatMessagesError } = await Astro.callAction(
+	actions.readChatMsgs,
+	{ activeChatId: activeChatId as string }
+);
+
+const chatMsgs = chatMessages?.message || [];
 
 const messages = chatMsgs.map((msg) => ({
 	id: msg.id,
