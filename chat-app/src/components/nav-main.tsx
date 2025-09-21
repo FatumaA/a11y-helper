@@ -77,6 +77,7 @@ export function NavMain({ items }: { items: Chat[] }) {
 		if (!res.data?.success) {
 			toast.error(res.data?.message);
 		} else {
+			navigate("/chat");
 			toast.success("Chat deleted successfully");
 		}
 		setDeleteTarget(null);
