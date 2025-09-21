@@ -38,12 +38,9 @@ import {
 } from "./ui/alert-dialog";
 import { Button, buttonVariants } from "./ui/button";
 
-interface Chat {
-	id: string;
-	title: string;
-	created_at: string;
-	user_id: string;
-}
+import { type Database } from "../../database.types";
+
+type Chat = Database["public"]["Tables"]["chats"]["Row"];
 
 export function NavMain({ items }: { items: Chat[] }) {
 	const { isMobile } = useSidebar();
@@ -115,7 +112,7 @@ export function NavMain({ items }: { items: Chat[] }) {
 											variant="ghost"
 											onClick={() => {
 												setRenameTarget(item);
-												setNewTitle(item.title);
+												setNewTitle(item.title!);
 											}}
 										>
 											Rename
