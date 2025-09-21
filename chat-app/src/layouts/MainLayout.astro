@@ -4,6 +4,7 @@ import { ClientRouter } from "astro:transitions";
 import Header from "@/components/blocks/header";
 import { supabaseServerClient } from "@/lib/supabase";
 import { Toaster } from "@/components/ui/sonner";
+import { ThemeProvider } from "@/components/ThemeProvider";
 
 const { hideHeader = false } = Astro.props;
 
@@ -31,10 +32,13 @@ const activeUser = user;
 		<title>WCAG Chat</title>
 		<ClientRouter />
 	</head>
-	<body>
-		<Toaster richColors position="top-center" client:only="react" />
-		{!hideHeader && <Header user={activeUser} client:load />}
 
-		<slot />
+	<body>
+		<ThemeProvider client:load>
+			<Toaster richColors position="top-center" client:only="react" />
+			{!hideHeader && <Header user={activeUser} client:load />}
+
+			<slot />
+		</ThemeProvider>
 	</body>
 </html>
