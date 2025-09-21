@@ -51,6 +51,7 @@ import { useStore } from "@nanostores/react";
 import { navigate } from "astro:transitions/client";
 
 type Chat = Database["public"]["Tables"]["chats"]["Row"];
+type Theme = "light" | "dark" | "system";
 
 export function AppSidebar() {
 	const user = useStore(userStore);
@@ -60,21 +61,38 @@ export function AppSidebar() {
 	const [openSettings, setOpenSettings] = React.useState(false);
 	const [confirmDelete, setConfirmDelete] = React.useState(false);
 
-	const [theme, setThemeState] = React.useState<
-		"theme-light" | "dark" | "system"
-	>("system");
+	const [theme, setThemeState] = React.useState<Theme>(
+		(localStorage.getItem("theme") as Theme) || "system"
+	);
 
+	// Apply theme and save to localStorage whenever theme changes
 	React.useEffect(() => {
-		const isDarkMode = document.documentElement.classList.contains("dark");
-		setThemeState(isDarkMode ? "dark" : "theme-light");
-	}, []);
+		const applyTheme = () => {
+			let isDark = false;
 
-	React.useEffect(() => {
-		const isDark =
-			theme === "dark" ||
-			(theme === "system" &&
-				window.matchMedia("(prefers-color-scheme: dark)").matches);
-		document.documentElement.classList[isDark ? "add" : "remove"]("dark");
+			if (theme === "dark") {
+				isDark = true;
+			} else if (theme === "light") {
+				isDark = false;
+			} else if (theme === "system") {
+				isDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+			}
+
+			document.documentElement.classList[isDark ? "add" : "remove"]("dark");
+		};
+
+		applyTheme();
+
+		// Save theme preference to localStorage
+		localStorage.setItem("theme", theme);
+
+		// Only listen to OS theme changes if user chose "system"
+		if (theme === "system") {
+			const mq = window.matchMedia("(prefers-color-scheme: dark)");
+			const handler = () => applyTheme();
+			mq.addEventListener("change", handler);
+			return () => mq.removeEventListener("change", handler);
+		}
 	}, [theme]);
 
 	const handleDeleteAccount = async () => {
@@ -205,9 +223,7 @@ export function AppSidebar() {
 										</Button>
 									</DropdownMenuTrigger>
 									<DropdownMenuContent align="end" className="w-40">
-										<DropdownMenuItem
-											onClick={() => setThemeState("theme-light")}
-										>
+										<DropdownMenuItem onClick={() => setThemeState("light")}>
 											<Sun className="mr-2 h-4 w-4" /> Light
 										</DropdownMenuItem>
 										<DropdownMenuItem onClick={() => setThemeState("dark")}>
