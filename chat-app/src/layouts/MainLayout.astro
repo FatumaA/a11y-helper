@@ -16,7 +16,15 @@ const {
 	data: { user },
 } = await supabaseBE.auth.getUser();
 
-const activeUser = user;
+const activeUser = user
+	? {
+			id: user.id,
+			email: user.email,
+			avatarUrl: user.user_metadata?.avatar_url ?? "",
+		}
+	: null;
+
+const serializedUser = activeUser ? JSON.stringify(activeUser) : null;
 ---
 
 <script is:inline>
@@ -43,6 +51,12 @@ const activeUser = user;
 	}
 </script>
 
+<!-- Pass user data to client-side via global variable -->
+<script is:inline define:vars={{ serializedUser }}>
+	// Set initial user data on window for client-side access
+	window.initialUserData = serializedUser ? JSON.parse(serializedUser) : null;
+</script>
+
 <html lang="en">
 	<head>
 		<meta charset="UTF-8" />
@@ -58,7 +72,7 @@ const activeUser = user;
 
 	<body>
 		<Toaster richColors position="top-center" client:only="react" />
-		{!hideHeader && <Header user={activeUser} client:load />}
+		{!hideHeader && <Header client:only="react" />}
 
 		<slot />
 	</body>
