@@ -15,6 +15,28 @@ import {
 	SidebarMenuItem,
 	useSidebar,
 } from "@/components/ui/sidebar";
+import { navigate } from "astro:transitions/client";
+import { actions } from "astro:actions";
+import { toast } from "sonner";
+import {
+	Dialog,
+	DialogContent,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+} from "./ui/dialog";
+import { useState } from "react";
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+} from "./ui/alert-dialog";
+import { Button, buttonVariants } from "./ui/button";
 
 interface Chat {
 	id: string;
@@ -26,47 +48,140 @@ interface Chat {
 export function NavMain({ items }: { items: Chat[] }) {
 	const { isMobile } = useSidebar();
 
+	const [renameTarget, setRenameTarget] = useState<Chat | null>(null);
+	const [deleteTarget, setDeleteTarget] = useState<Chat | null>(null);
+	const [newTitle, setNewTitle] = useState("");
+
+	// Rename handler
+	const handleRename = async () => {
+		if (!renameTarget) return;
+		const res = await actions.updateChat({
+			activeChatId: renameTarget.id,
+			newTitle,
+		});
+
+		if (!res.data?.success) {
+			toast.error(res.data?.message);
+		} else {
+			toast.success("Chat renamed successfully");
+		}
+		setRenameTarget(null);
+		setNewTitle("");
+	};
+
+	// Delete handler
+	const handleDeleteChat = async () => {
+		if (!deleteTarget) return;
+		const res = await actions.deleteChat({ activeChatId: deleteTarget.id });
+
+		if (!res.data?.success) {
+			toast.error(res.data?.message);
+		} else {
+			toast.success("Chat deleted successfully");
+		}
+		setDeleteTarget(null);
+	};
+
 	return (
-		<SidebarGroup>
-			<SidebarMenu>
-				{items.map((item) => (
-					<DropdownMenu key={item.id}>
-						<SidebarMenuItem>
-							<DropdownMenuTrigger asChild>
-								<SidebarMenuButton className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground">
-									{item.title} <MoreHorizontal className="ml-auto" />
-								</SidebarMenuButton>
-							</DropdownMenuTrigger>
-							<DropdownMenuContent
-								side={isMobile ? "bottom" : "right"}
-								align={isMobile ? "end" : "start"}
-								className="min-w-40 rounded-lg"
+		<>
+			<SidebarGroup>
+				<SidebarMenu>
+					{items.map((item) => (
+						<SidebarMenuItem key={item.id} className="flex items-center">
+							<SidebarMenuButton
+								className="flex-1 text-left"
+								onClick={() => navigate(`/chat/${item.id}`)}
 							>
-								<DropdownMenuItem asChild>
+								{item.title}
+							</SidebarMenuButton>
+							<DropdownMenu>
+								<DropdownMenuTrigger asChild>
 									<button
-										className="w-full text-left"
-										onClick={() => {
-											/* handle rename logic here */
-										}}
+										type="button"
+										className="ml-2 p-1 rounded hover:bg-sidebar-accent"
+										aria-label="More options"
 									>
-										Rename
+										<MoreHorizontal />
 									</button>
-								</DropdownMenuItem>
-								<DropdownMenuItem asChild>
-									<button
-										className="w-full text-left text-red-600"
-										onClick={() => {
-											/* handle delete logic here */
-										}}
-									>
-										Delete
-									</button>
-								</DropdownMenuItem>
-							</DropdownMenuContent>
+								</DropdownMenuTrigger>
+								<DropdownMenuContent
+									side={isMobile ? "bottom" : "right"}
+									align={isMobile ? "end" : "start"}
+									className="flex flex-col gap-2 p-2"
+								>
+									<DropdownMenuItem asChild>
+										<Button
+											variant="ghost"
+											onClick={() => {
+												setRenameTarget(item);
+												setNewTitle(item.title);
+											}}
+										>
+											Rename
+										</Button>
+									</DropdownMenuItem>
+									<DropdownMenuItem asChild>
+										<Button
+											variant="ghost"
+											onClick={() => setDeleteTarget(item)}
+										>
+											Delete
+										</Button>
+									</DropdownMenuItem>
+								</DropdownMenuContent>
+							</DropdownMenu>
 						</SidebarMenuItem>
-					</DropdownMenu>
-				))}
-			</SidebarMenu>
-		</SidebarGroup>
+					))}
+				</SidebarMenu>
+			</SidebarGroup>
+
+			{/* Rename Dialog */}
+			<Dialog open={!!renameTarget} onOpenChange={() => setRenameTarget(null)}>
+				<DialogContent>
+					<DialogHeader>
+						<DialogTitle>Rename Chat</DialogTitle>
+					</DialogHeader>
+					<input
+						className="w-full rounded border p-2"
+						value={newTitle}
+						onChange={(e) => setNewTitle(e.target.value)}
+						onKeyDown={(e) => e.key === "Enter" && handleRename()}
+						autoFocus
+					/>
+					<DialogFooter>
+						<Button variant="outline" onClick={() => setRenameTarget(null)}>
+							Cancel
+						</Button>
+						<Button onClick={handleRename}>Rename</Button>
+					</DialogFooter>
+				</DialogContent>
+			</Dialog>
+
+			{/* Delete Confirmation AlertDialog */}
+			<AlertDialog
+				open={!!deleteTarget}
+				onOpenChange={() => setDeleteTarget(null)}
+			>
+				<AlertDialogContent>
+					<AlertDialogHeader>
+						<AlertDialogTitle>Delete Chat</AlertDialogTitle>
+						<AlertDialogDescription>
+							Are you sure you want to delete{" "}
+							<span className="font-medium">{deleteTarget?.title}</span>? This
+							action cannot be undone.
+						</AlertDialogDescription>
+					</AlertDialogHeader>
+					<AlertDialogFooter>
+						<AlertDialogCancel>Cancel</AlertDialogCancel>
+						<AlertDialogAction
+							onClick={handleDeleteChat}
+							className={buttonVariants({ variant: "destructive" })}
+						>
+							Delete
+						</AlertDialogAction>
+					</AlertDialogFooter>
+				</AlertDialogContent>
+			</AlertDialog>
+		</>
 	);
 }
