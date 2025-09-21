@@ -4,7 +4,7 @@ import { AuthedSidebar } from "../components/blocks/authed-sidebar";
 ---
 
 <MainLayout>
-	<AuthedSidebar client:load>
+	<AuthedSidebar client:only="react">
 		<slot />
 	</AuthedSidebar>
 </MainLayout>
