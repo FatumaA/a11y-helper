@@ -45,10 +45,16 @@ import {
 	DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { type Database } from "../../database.types";
+import { toast } from "sonner";
+import { clearUser, userStore } from "@/stores/userStore";
+import { useStore } from "@nanostores/react";
+import { navigate } from "astro:transitions/client";
 
 type Chat = Database["public"]["Tables"]["chats"]["Row"];
 
 export function AppSidebar() {
+	const user = useStore(userStore);
+
 	const [chats, setChats] = React.useState<Chat[]>([]);
 	const [loading, setLoading] = React.useState(true);
 	const [openSettings, setOpenSettings] = React.useState(false);
@@ -70,11 +76,31 @@ export function AppSidebar() {
 				window.matchMedia("(prefers-color-scheme: dark)").matches);
 		document.documentElement.classList[isDark ? "add" : "remove"]("dark");
 	}, [theme]);
-	const userEmail = "user@example.com";
 
 	const handleDeleteAccount = async () => {
-		console.log("Deleting account...");
-		setConfirmDelete(false);
+		if (!user?.id) {
+			return;
+		}
+
+		try {
+			const res = await actions.deleteAccount({
+				activeUserId: user.id,
+			});
+
+			if (res.data?.success) {
+				toast.success("Account deleted successfully");
+				clearUser();
+				navigate("/");
+			} else {
+				toast.error(
+					res.data?.message ?? "Failed to delete account, please try again"
+				);
+			}
+		} catch (error) {
+			console.error("Error deleting account:", error);
+			toast.error("An error occurred, please try again");
+			setConfirmDelete(false);
+		}
 	};
 
 	React.useEffect(() => {
@@ -154,11 +180,11 @@ export function AppSidebar() {
 					<div className="space-y-4">
 						<div>
 							<p className="text-sm font-medium">Email</p>
-							<p className="text-sm text-muted-foreground">{userEmail}</p>
+							<p className="text-sm text-muted-foreground">{user?.email}</p>
 						</div>
 
 						<Button
-							variant="destructive"
+							className={buttonVariants({ variant: "destructive" })}
 							onClick={() => setConfirmDelete(true)}
 						>
 							Delete Account
