@@ -59,8 +59,23 @@ export function AppSidebar() {
 	const [loading, setLoading] = React.useState(true);
 	const [openSettings, setOpenSettings] = React.useState(false);
 	const [confirmDelete, setConfirmDelete] = React.useState(false);
-	const { setTheme } = useTheme();
 
+	const [theme, setThemeState] = React.useState<
+		"theme-light" | "dark" | "system"
+	>("theme-light");
+
+	React.useEffect(() => {
+		const isDarkMode = document.documentElement.classList.contains("dark");
+		setThemeState(isDarkMode ? "dark" : "theme-light");
+	}, []);
+
+	React.useEffect(() => {
+		const isDark =
+			theme === "dark" ||
+			(theme === "system" &&
+				window.matchMedia("(prefers-color-scheme: dark)").matches);
+		document.documentElement.classList[isDark ? "add" : "remove"]("dark");
+	}, [theme]);
 	const userEmail = "user@example.com";
 
 	const handleDeleteAccount = async () => {
@@ -170,13 +185,15 @@ export function AppSidebar() {
 										</Button>
 									</DropdownMenuTrigger>
 									<DropdownMenuContent align="end" className="w-40">
-										<DropdownMenuItem onClick={() => setTheme("light")}>
+										<DropdownMenuItem
+											onClick={() => setThemeState("theme-light")}
+										>
 											<Sun className="mr-2 h-4 w-4" /> Light
 										</DropdownMenuItem>
-										<DropdownMenuItem onClick={() => setTheme("dark")}>
+										<DropdownMenuItem onClick={() => setThemeState("dark")}>
 											<Moon className="mr-2 h-4 w-4" /> Dark
 										</DropdownMenuItem>
-										<DropdownMenuItem onClick={() => setTheme("system")}>
+										<DropdownMenuItem onClick={() => setThemeState("system")}>
 											<Laptop className="mr-2 h-4 w-4" /> System
 										</DropdownMenuItem>
 									</DropdownMenuContent>
