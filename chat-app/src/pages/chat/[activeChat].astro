@@ -2,6 +2,7 @@
 import WCAGChatPage from "@/components/chat-ui/WCAGChatPage";
 import AuthedChatLayout from "@/layouts/AuthedChatLayout.astro";
 import { supabaseServerClient } from "@/lib/supabase";
+import { actions } from "astro:actions";
 
 const supabaseBE = supabaseServerClient({
 	request: Astro.request,
@@ -13,22 +14,23 @@ const {
 } = await supabaseBE.auth.getUser();
 
 const activeUser = user;
-const { activeChat } = Astro.params;
+const { activeChatId } = Astro.params;
 
+if (!activeChatId || typeof activeChatId !== "string") {
+	Astro.redirect("/chat");
+}
 // Fetch messages for this chat
-const { data: chatMessages, error: chatMessagesError } = await supabaseBE
-	.from("chat_messages")
-	.select("*")
-	.eq("chat_id", activeChat)
-	.order("created_at", { ascending: true });
+const { data: chatMessages, error: chatMessagesError } =
+	await actions.readChatMsgs({ activeChatId: activeChatId as string });
 
-const messages =
-	chatMessages?.map((msg) => ({
-		id: msg.id,
-		role: msg.role,
-		parts: [{ type: "text", text: msg.message_content }],
-		createdAt: new Date(msg.created_at),
-	})) ?? [];
+const chatMsgs = chatMessages?.message ?? [];
+
+const messages = chatMsgs.map((msg) => ({
+	id: msg.id,
+	role: msg.role,
+	parts: [{ type: "text", text: msg.message_content }],
+	createdAt: new Date(msg.created_at),
+}));
 ---
 
 <AuthedChatLayout>
@@ -36,6 +38,6 @@ const messages =
 		client:load
 		user={activeUser}
 		initialMessages={messages}
-		activeChatId={activeChat}
+		activeChatId={activeChatId}
 	/>
 </AuthedChatLayout>
