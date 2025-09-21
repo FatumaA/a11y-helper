@@ -14,12 +14,6 @@ export default defineConfig({
 
 	vite: {
 		plugins: [tailwindcss()],
-		resolve: {
-			alias: {
-				"@": resolve("./src"),
-				"@/": resolve("./src") + "/",
-			},
-		},
 		ssr: {
 			noExternal: ["streamdown"],
 		},
