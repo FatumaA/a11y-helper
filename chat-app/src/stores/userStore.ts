@@ -12,7 +12,6 @@ export const isLoadingStore = atom<boolean>(true);
 
 // Helper functions
 export function setUser(user: User | null) {
-	console.log("Setting user in store:", user);
 	userStore.set(user);
 	isLoadingStore.set(false);
 }
@@ -24,7 +23,6 @@ export function clearUser() {
 
 // Initialize the store with server data (called from client-side)
 export function initializeUserStore(userData: User | null) {
-	console.log("Initializing user store:", userData);
 	setUser(userData);
 }
 
