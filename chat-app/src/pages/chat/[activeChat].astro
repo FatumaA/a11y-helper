@@ -14,25 +14,25 @@ const {
 } = await supabaseBE.auth.getUser();
 
 const activeUser = user;
-const { activeChatId } = Astro.params;
+const { activeChat } = Astro.params;
 
-if (!activeChatId) {
-	Astro.redirect("/chat");
+const chatResult = await Astro.callAction(actions.getChat, {
+	chatId: activeChat!,
+});
+
+const { data } = chatResult;
+
+if (!data?.success || typeof data.message === "string") {
+	return Astro.redirect("/chat");
 }
 
-const { data: chatMessages, error: chatMessagesError } = await Astro.callAction(
-	actions.readChatMsgs,
-	{ activeChatId: activeChatId as string }
-);
+const { data: chatMessages } = await Astro.callAction(actions.readChatMsgs, {
+	activeChatId: activeChat as string,
+});
 
-const chatMsgs = chatMessages?.message || [];
-
-const messages = chatMsgs.map((msg) => ({
-	id: msg.id,
-	role: msg.role,
-	parts: [{ type: "text", text: msg.message_content }],
-	createdAt: new Date(msg.created_at),
-}));
+const messages = Array.isArray(chatMessages?.message)
+	? chatMessages.message
+	: [];
 ---
 
 <AuthedChatLayout>
@@ -40,6 +40,6 @@ const messages = chatMsgs.map((msg) => ({
 		client:load
 		user={activeUser}
 		initialMessages={messages}
-		activeChatId={activeChatId}
+		activeChatId={activeChat}
 	/>
 </AuthedChatLayout>
