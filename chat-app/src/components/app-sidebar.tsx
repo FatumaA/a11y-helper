@@ -218,8 +218,9 @@ export function AppSidebar() {
 											className="w-full justify-between"
 										>
 											{theme}
-											<Sun className="h-4 w-4 dark:hidden" />
-											<Moon className="h-4 w-4 hidden dark:block" />
+											{theme === "light" && <Sun className="h-4 w-4" />}
+											{theme === "dark" && <Moon className="h-4 w-4" />}
+											{theme === "system" && <Laptop className="h-4 w-4" />}
 										</Button>
 									</DropdownMenuTrigger>
 									<DropdownMenuContent align="end" className="w-40">
