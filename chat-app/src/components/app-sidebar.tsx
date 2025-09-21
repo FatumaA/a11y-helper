@@ -1,5 +1,12 @@
 import * as React from "react";
-import { GalleryVerticalEnd, MessageSquare } from "lucide-react";
+import {
+	GalleryVerticalEnd,
+	Laptop,
+	MessageSquare,
+	Moon,
+	Settings,
+	Sun,
+} from "lucide-react";
 
 import {
 	Sidebar,
@@ -13,6 +20,31 @@ import {
 } from "@/components/ui/sidebar";
 import { actions } from "astro:actions";
 import { NavMain } from "./nav-main";
+import { Button, buttonVariants } from "./ui/button";
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+} from "./ui/alert-dialog";
+import {
+	Dialog,
+	DialogContent,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+} from "./ui/dialog";
+import { useTheme } from "next-themes";
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
 
 // Local type for chat row from Supabase
 interface Chat {
@@ -25,6 +57,16 @@ interface Chat {
 export function AppSidebar() {
 	const [chats, setChats] = React.useState<Chat[]>([]);
 	const [loading, setLoading] = React.useState(true);
+	const [openSettings, setOpenSettings] = React.useState(false);
+	const [confirmDelete, setConfirmDelete] = React.useState(false);
+	const { setTheme } = useTheme();
+
+	const userEmail = "user@example.com";
+
+	const handleDeleteAccount = async () => {
+		console.log("Deleting account...");
+		setConfirmDelete(false);
+	};
 
 	React.useEffect(() => {
 		const fetchChats = async () => {
@@ -78,12 +120,94 @@ export function AppSidebar() {
 					<NavMain items={chats} />
 				</SidebarMenu>
 			</SidebarContent>
+			<SidebarFooter className="mb-4">
+				<div className="flex flex-col w-full gap-12">
+					<SidebarMenuButton
+						className="cursor-pointer"
+						onClick={() => setOpenSettings(true)}
+					>
+						<Settings className="mr-2 h-4 w-4" />
+						Settings
+					</SidebarMenuButton>
 
-			<SidebarFooter>
-				<div className="p-2 text-xs text-muted-foreground">
-					{new Date().getFullYear()} © WCAG Explained
+					<div className="text-xs text-muted-foreground px-2">
+						{new Date().getFullYear()} © WCAG Explained
+					</div>
 				</div>
 			</SidebarFooter>
+			{/* Settings Dialog */}
+			<Dialog open={openSettings} onOpenChange={setOpenSettings}>
+				<DialogContent>
+					<DialogHeader>
+						<DialogTitle>Settings</DialogTitle>
+					</DialogHeader>
+
+					<div className="space-y-4">
+						<div>
+							<p className="text-sm font-medium">Email</p>
+							<p className="text-sm text-muted-foreground">{userEmail}</p>
+						</div>
+
+						<Button
+							variant="destructive"
+							onClick={() => setConfirmDelete(true)}
+						>
+							Delete Account
+						</Button>
+						{/* Theme toggle will go here later */}
+						<div>
+							<p className="text-sm font-medium mb-2">Theme</p>
+							<div className="flex gap-2">
+								<DropdownMenu>
+									<DropdownMenuTrigger asChild>
+										<Button
+											variant="outline"
+											className="w-full justify-between"
+										>
+											Theme
+											<Sun className="h-4 w-4 dark:hidden" />
+											<Moon className="h-4 w-4 hidden dark:block" />
+										</Button>
+									</DropdownMenuTrigger>
+									<DropdownMenuContent align="end" className="w-40">
+										<DropdownMenuItem onClick={() => setTheme("light")}>
+											<Sun className="mr-2 h-4 w-4" /> Light
+										</DropdownMenuItem>
+										<DropdownMenuItem onClick={() => setTheme("dark")}>
+											<Moon className="mr-2 h-4 w-4" /> Dark
+										</DropdownMenuItem>
+										<DropdownMenuItem onClick={() => setTheme("system")}>
+											<Laptop className="mr-2 h-4 w-4" /> System
+										</DropdownMenuItem>
+									</DropdownMenuContent>
+								</DropdownMenu>
+							</div>
+						</div>
+					</div>
+				</DialogContent>
+			</Dialog>
+
+			{/* Confirm Delete Alert */}
+			<AlertDialog open={confirmDelete} onOpenChange={setConfirmDelete}>
+				<AlertDialogContent>
+					<AlertDialogHeader>
+						<AlertDialogTitle>Delete Account</AlertDialogTitle>
+						<AlertDialogDescription>
+							This will permanently delete your account and all associated data.
+							Are you absolutely sure?
+						</AlertDialogDescription>
+					</AlertDialogHeader>
+					<AlertDialogFooter>
+						<AlertDialogCancel>Cancel</AlertDialogCancel>
+						<AlertDialogAction
+							onClick={handleDeleteAccount}
+							className={buttonVariants({ variant: "destructive" })}
+						>
+							Delete
+						</AlertDialogAction>
+					</AlertDialogFooter>
+				</AlertDialogContent>
+			</AlertDialog>
 
 			<SidebarRail />
 		</Sidebar>
