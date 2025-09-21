@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useEffect, useState } from "react";
 import { actions } from "astro:actions";
-import { toast, Toaster } from "sonner";
+import { toast } from "sonner";
 
 export function AuthForm({
 	className,
@@ -48,6 +48,7 @@ export function AuthForm({
 				toast.success(data.message);
 			} else {
 				toast.error("Sign in error, please try again.");
+				setIsMagicLoading(false);
 			}
 		} catch (error: unknown) {
 			toast.error("An error occurred, please try again.");
@@ -68,6 +69,7 @@ export function AuthForm({
 			});
 			if (error) {
 				toast.error("Google sign in error, please try again.");
+				setIsGoogleLoading(false);
 			}
 		} catch (error: unknown) {
 			toast.error("An error occurred, please try again.");
