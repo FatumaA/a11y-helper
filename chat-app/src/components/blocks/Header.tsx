@@ -4,7 +4,7 @@ import { type User } from "@supabase/supabase-js";
 import { Button } from "../ui/button";
 import { toast } from "sonner";
 import { useStore } from "@nanostores/react";
-import { isLoadingStore, userStore } from "@/stores/userStore";
+import { clearUser, isLoadingStore, userStore } from "@/stores/userStore";
 
 const enum AuthAction {
 	SIGN_IN = "sign-in",
@@ -15,9 +15,6 @@ const Header = () => {
 	const user = useStore(userStore);
 	const isLoading = useStore(isLoadingStore);
 
-	console.log("USER IN HEADER?", user);
-	console.log("IS LOADING?", isLoading);
-
 	const handleAuth = (actionType: AuthAction) => {
 		navigate("/auth", { state: { actionType } });
 	};
@@ -27,6 +24,8 @@ const Header = () => {
 			const { data } = await actions.signOut();
 			if (data?.success) {
 				toast.success(data.message);
+				clearUser();
+				navigate("/");
 			}
 		} catch (error: unknown) {
 			toast.error("An error occurred, please try again.");
