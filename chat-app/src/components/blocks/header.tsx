@@ -1,3 +1,4 @@
+"use client";
 import { actions } from "astro:actions";
 import { navigate } from "astro:transitions/client";
 import { type User } from "@supabase/supabase-js";
@@ -5,6 +6,7 @@ import { Button } from "../ui/button";
 import { toast } from "sonner";
 import { useStore } from "@nanostores/react";
 import { clearUser, isLoadingStore, userStore } from "@/stores/userStore";
+import { Accessibility } from "lucide-react";
 
 const enum AuthAction {
 	SIGN_IN = "sign-in",
@@ -35,7 +37,9 @@ const Header = () => {
 	const isSignedIn = user ? true : false;
 	return (
 		<div className="flex justify-between my-4 mx-8 sticky top-0 z-10">
-			<h1>Logo</h1>
+			<a href="/" aria-label="Home" className="cursor-pointer">
+				<Accessibility className="w-7 h-7 text-primary" />
+			</a>
 			{isSignedIn ? (
 				<div className="flex items-center gap-4">
 					<p>{user?.email}</p>
