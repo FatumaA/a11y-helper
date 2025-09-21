@@ -49,16 +49,14 @@ export function AppSidebar() {
 			<SidebarHeader>
 				<SidebarMenu>
 					<SidebarMenuItem>
-						<SidebarMenuButton size="lg" asChild>
-							<a href="#">
-								<div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
-									<GalleryVerticalEnd className="size-4" />
-								</div>
-								<div className="flex flex-col gap-0.5 leading-none">
-									<span className="font-medium">My Chats</span>
-								</div>
-							</a>
-						</SidebarMenuButton>
+						<div className="flex items-center gap-2 px-2 py-3 select-none cursor-default">
+							<div className="flex aspect-square size-8 items-center justify-center rounded-lg pointer-none">
+								<GalleryVerticalEnd className="size-4" />
+							</div>
+							<div className="flex flex-col gap-0.5 leading-none">
+								<span className="font-medium">Previous chats</span>
+							</div>
+						</div>
 					</SidebarMenuItem>
 				</SidebarMenu>
 			</SidebarHeader>
@@ -66,13 +64,13 @@ export function AppSidebar() {
 			<SidebarContent>
 				<SidebarMenu>
 					{loading && (
-						<div className="p-2 text-sm text-muted-foreground">
+						<div className="p-6 text-sm text-muted-foreground">
 							Loading chats…
 						</div>
 					)}
 
 					{!loading && chats.length === 0 && (
-						<div className="p-2 text-sm text-muted-foreground">
+						<div className="p-6 text-sm text-muted-foreground">
 							No chats yet
 						</div>
 					)}
@@ -83,7 +81,7 @@ export function AppSidebar() {
 
 			<SidebarFooter>
 				<div className="p-2 text-xs text-muted-foreground">
-					{new Date().getFullYear()} © YourApp
+					{new Date().getFullYear()} © WCAG Explained
 				</div>
 			</SidebarFooter>
 
