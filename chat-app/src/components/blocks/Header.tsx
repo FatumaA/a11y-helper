@@ -3,13 +3,21 @@ import { navigate } from "astro:transitions/client";
 import { type User } from "@supabase/supabase-js";
 import { Button } from "../ui/button";
 import { toast } from "sonner";
+import { useStore } from "@nanostores/react";
+import { isLoadingStore, userStore } from "@/stores/userStore";
 
 const enum AuthAction {
 	SIGN_IN = "sign-in",
 	SIGN_UP = "sign-up",
 }
 
-const Header = ({ user }: { user: User | null }) => {
+const Header = () => {
+	const user = useStore(userStore);
+	const isLoading = useStore(isLoadingStore);
+
+	console.log("USER IN HEADER?", user);
+	console.log("IS LOADING?", isLoading);
+
 	const handleAuth = (actionType: AuthAction) => {
 		navigate("/auth", { state: { actionType } });
 	};
