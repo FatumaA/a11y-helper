@@ -1,5 +1,5 @@
 import { actions } from "astro:actions";
-import { navigate } from "astro/virtual-modules/transitions-router.js";
+import { navigate } from "astro:transitions/client";
 import { type User } from "@supabase/supabase-js";
 import { Button } from "../ui/button";
 import { toast } from "sonner";
@@ -27,7 +27,7 @@ const Header = ({ user }: { user: User | null }) => {
 
 	const isSignedIn = user ? true : false;
 	return (
-		<div className="flex justify-between my-4 mx-8">
+		<div className="flex justify-between my-4 mx-8 sticky top-0 z-10">
 			<h1>Logo</h1>
 			{isSignedIn ? (
 				<div className="flex items-center gap-4">
