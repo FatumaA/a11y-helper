@@ -75,7 +75,7 @@ export function AppSidebar() {
 				isDark = true;
 			} else if (theme === "light") {
 				isDark = false;
-			} else if (theme === "system") {
+			} else {
 				isDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
 			}
 
@@ -84,10 +84,8 @@ export function AppSidebar() {
 
 		applyTheme();
 
-		// Save theme preference to localStorage
 		localStorage.setItem("theme", theme);
 
-		// Only listen to OS theme changes if user chose "system"
 		if (theme === "system") {
 			const mq = window.matchMedia("(prefers-color-scheme: dark)");
 			const handler = () => applyTheme();
@@ -136,13 +134,15 @@ export function AppSidebar() {
 	React.useEffect(() => {
 		const fetchChats = async () => {
 			try {
-				const res = await actions.readChats();
+				if (user) {
+					const res = await actions.readChats({ activeUserId: user.id });
 
-				if (res.data?.message) {
-					setChats(res.data.message as Chat[]); // message contains your DB rows
+					if (res.data?.message) {
+						setChats(res.data.message as Chat[]); // message contains your DB rows
+					}
 				}
 			} catch (err) {
-				console.error("Error fetching chats:", err);
+				toast.error("Failed to load chats, please try again.");
 			} finally {
 				setLoading(false);
 			}
