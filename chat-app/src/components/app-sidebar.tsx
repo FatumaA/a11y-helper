@@ -4,6 +4,7 @@ import {
 	Laptop,
 	MessageSquare,
 	Moon,
+	Plus,
 	Settings,
 	Sun,
 } from "lucide-react";
@@ -121,6 +122,17 @@ export function AppSidebar() {
 		}
 	};
 
+	// Delete all handler
+	const handleDeleteAllChats = async () => {
+		const res = await actions.deleteChats();
+
+		if (!res.data?.success) {
+			toast.error(res.data?.message);
+		} else {
+			toast.success("Chats deleted successfully");
+		}
+	};
+
 	React.useEffect(() => {
 		const fetchChats = async () => {
 			try {
@@ -159,15 +171,24 @@ export function AppSidebar() {
 			<SidebarContent>
 				<SidebarMenu>
 					{loading && (
-						<div className="p-6 text-sm text-muted-foreground">
+						<div className="m-6 text-sm text-muted-foreground">
 							Loading chats…
 						</div>
 					)}
-
-					{!loading && chats.length === 0 && (
-						<div className="p-6 text-sm text-muted-foreground">
-							No chats yet
-						</div>
+					<Button className="cursor-pointer m-6">
+						<Plus />
+						New Chat
+					</Button>
+					{chats.length === 0 ? (
+						<SidebarMenuItem className="m-6">No chats yet</SidebarMenuItem>
+					) : (
+						<Button
+							className="cursor-pointer m-6"
+							variant="destructive"
+							onClick={handleDeleteAllChats}
+						>
+							Delete All Chats
+						</Button>
 					)}
 
 					<NavMain items={chats} />
