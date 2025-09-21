@@ -38,21 +38,15 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "./ui/dialog";
-import { useTheme } from "next-themes";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
+import { type Database } from "../../database.types";
 
-// Local type for chat row from Supabase
-interface Chat {
-	id: string;
-	title: string; // adjust depending on your schema
-	created_at: string;
-	user_id: string;
-}
+type Chat = Database["public"]["Tables"]["chats"]["Row"];
 
 export function AppSidebar() {
 	const [chats, setChats] = React.useState<Chat[]>([]);
@@ -62,7 +56,7 @@ export function AppSidebar() {
 
 	const [theme, setThemeState] = React.useState<
 		"theme-light" | "dark" | "system"
-	>("theme-light");
+	>("system");
 
 	React.useEffect(() => {
 		const isDarkMode = document.documentElement.classList.contains("dark");
@@ -179,7 +173,7 @@ export function AppSidebar() {
 											variant="outline"
 											className="w-full justify-between"
 										>
-											Theme
+											{theme}
 											<Sun className="h-4 w-4 dark:hidden" />
 											<Moon className="h-4 w-4 hidden dark:block" />
 										</Button>
