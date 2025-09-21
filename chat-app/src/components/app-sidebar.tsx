@@ -96,6 +96,27 @@ export function AppSidebar() {
 		}
 	}, [theme]);
 
+	React.useEffect(() => {
+		const fetchChats = async () => {
+			try {
+				if (!user?.id) {
+					toast.error("Oops, please try again");
+				}
+				const res = await actions.readChats({ activeUserId: user!.id });
+
+				if (res.data?.message) {
+					setChats(res.data.message as Chat[]);
+				}
+			} catch (err) {
+				console.error("Error fetching chats:", err);
+			} finally {
+				setLoading(false);
+			}
+		};
+
+		fetchChats();
+	}, []);
+
 	const handleDeleteAccount = async () => {
 		if (!user?.id) {
 			return;
@@ -133,26 +154,16 @@ export function AppSidebar() {
 		}
 	};
 
-	React.useEffect(() => {
-		const fetchChats = async () => {
-			try {
-				if (!user?.id) {
-					toast.error("Oops, please try again");
-				}
-				const res = await actions.readChats({ activeUserId: user!.id });
+	const handleAddChat = async () => {
+		const res = await actions.createChat({ activeUserId: user!.id });
 
-				if (res.data?.message) {
-					setChats(res.data.message as Chat[]); // message contains your DB rows
-				}
-			} catch (err) {
-				console.error("Error fetching chats:", err);
-			} finally {
-				setLoading(false);
-			}
-		};
-
-		fetchChats();
-	}, []);
+		if (!res.data?.success) {
+			toast.error(res.data?.message as string);
+		} else {
+			const newChat = res.data.message as Chat;
+			navigate(`/chat/${newChat.id}`);
+		}
+	};
 
 	return (
 		<Sidebar>
@@ -178,7 +189,7 @@ export function AppSidebar() {
 							Loading chats…
 						</div>
 					)}
-					<Button className="cursor-pointer m-6">
+					<Button className="cursor-pointer m-6" onClick={handleAddChat}>
 						<Plus />
 						New Chat
 					</Button>
