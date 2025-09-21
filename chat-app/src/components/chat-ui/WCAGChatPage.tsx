@@ -44,6 +44,10 @@ export default function WCAGChatPage({
 
 	const { messages, setMessages, sendMessage, status, error } = useChat({
 		transport: new DefaultChatTransport({
+			headers: {
+				"Transfer-Encoding": "chunked",
+				Connection: "keep-alive",
+			},
 			api: "/api/streamChatResponse",
 		}),
 		onError: (error) => {
