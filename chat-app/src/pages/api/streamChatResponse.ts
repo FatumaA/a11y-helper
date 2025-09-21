@@ -71,6 +71,10 @@ export const POST: APIRoute = async (context) => {
 		});
 
 		return result.toUIMessageStreamResponse({
+			headers: {
+				"Transfer-Encoding": "chunked",
+				Connection: "keep-alive",
+			},
 			originalMessages: messages,
 			messageMetadata: ({ part }) => {
 				if (part.type === "start" && results.length > 0) {
