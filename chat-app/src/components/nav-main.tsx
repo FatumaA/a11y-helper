@@ -1,65 +1,72 @@
-"use client"
+"use client";
 
-import { MoreHorizontal, type LucideIcon } from "lucide-react"
+import { MoreHorizontal } from "lucide-react";
 
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
-  SidebarGroup,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  useSidebar,
-} from "@/components/ui/sidebar"
+	SidebarGroup,
+	SidebarMenu,
+	SidebarMenuButton,
+	SidebarMenuItem,
+	useSidebar,
+} from "@/components/ui/sidebar";
 
-export function NavMain({
-  items,
-}: {
-  items: {
-    title: string
-    url: string
-    icon?: LucideIcon
-    isActive?: boolean
-    items?: {
-      title: string
-      url: string
-    }[]
-  }[]
-}) {
-  const { isMobile } = useSidebar()
+interface Chat {
+	id: string;
+	title: string;
+	created_at: string;
+	user_id: string;
+}
 
-  return (
-    <SidebarGroup>
-      <SidebarMenu>
-        {items.map((item) => (
-          <DropdownMenu key={item.title}>
-            <SidebarMenuItem>
-              <DropdownMenuTrigger asChild>
-                <SidebarMenuButton className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground">
-                  {item.title} <MoreHorizontal className="ml-auto" />
-                </SidebarMenuButton>
-              </DropdownMenuTrigger>
-              {item.items?.length ? (
-                <DropdownMenuContent
-                  side={isMobile ? "bottom" : "right"}
-                  align={isMobile ? "end" : "start"}
-                  className="min-w-56 rounded-lg"
-                >
-                  {item.items.map((item) => (
-                    <DropdownMenuItem asChild key={item.title}>
-                      <a href={item.url}>{item.title}</a>
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              ) : null}
-            </SidebarMenuItem>
-          </DropdownMenu>
-        ))}
-      </SidebarMenu>
-    </SidebarGroup>
-  )
+export function NavMain({ items }: { items: Chat[] }) {
+	const { isMobile } = useSidebar();
+
+	return (
+		<SidebarGroup>
+			<SidebarMenu>
+				{items.map((item) => (
+					<DropdownMenu key={item.id}>
+						<SidebarMenuItem>
+							<DropdownMenuTrigger asChild>
+								<SidebarMenuButton className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground">
+									{item.title} <MoreHorizontal className="ml-auto" />
+								</SidebarMenuButton>
+							</DropdownMenuTrigger>
+							<DropdownMenuContent
+								side={isMobile ? "bottom" : "right"}
+								align={isMobile ? "end" : "start"}
+								className="min-w-40 rounded-lg"
+							>
+								<DropdownMenuItem asChild>
+									<button
+										className="w-full text-left"
+										onClick={() => {
+											/* handle rename logic here */
+										}}
+									>
+										Rename
+									</button>
+								</DropdownMenuItem>
+								<DropdownMenuItem asChild>
+									<button
+										className="w-full text-left text-red-600"
+										onClick={() => {
+											/* handle delete logic here */
+										}}
+									>
+										Delete
+									</button>
+								</DropdownMenuItem>
+							</DropdownMenuContent>
+						</SidebarMenuItem>
+					</DropdownMenu>
+				))}
+			</SidebarMenu>
+		</SidebarGroup>
+	);
 }

@@ -1,153 +1,51 @@
 import * as React from "react";
-import { GalleryVerticalEnd } from "lucide-react";
+import { GalleryVerticalEnd, MessageSquare } from "lucide-react";
 
-import { NavMain } from "@/components/nav-main";
-import { SidebarOptInForm } from "@/components/sidebar-opt-in-form";
 import {
 	Sidebar,
 	SidebarContent,
-	SidebarFooter,
 	SidebarHeader,
+	SidebarFooter,
 	SidebarMenu,
-	SidebarMenuButton,
 	SidebarMenuItem,
+	SidebarMenuButton,
 	SidebarRail,
 } from "@/components/ui/sidebar";
+import { actions } from "astro:actions";
+import { NavMain } from "./nav-main";
 
-// This is sample data.
-const data = {
-	navMain: [
-		{
-			title: "Getting Started",
-			url: "#",
-			items: [
-				{
-					title: "Installation",
-					url: "#",
-				},
-				{
-					title: "Project Structure",
-					url: "#",
-				},
-			],
-		},
-		{
-			title: "Building Your Application",
-			url: "#",
-			items: [
-				{
-					title: "Routing",
-					url: "#",
-				},
-				{
-					title: "Data Fetching",
-					url: "#",
-					isActive: true,
-				},
-				{
-					title: "Rendering",
-					url: "#",
-				},
-				{
-					title: "Caching",
-					url: "#",
-				},
-				{
-					title: "Styling",
-					url: "#",
-				},
-				{
-					title: "Optimizing",
-					url: "#",
-				},
-				{
-					title: "Configuring",
-					url: "#",
-				},
-				{
-					title: "Testing",
-					url: "#",
-				},
-				{
-					title: "Authentication",
-					url: "#",
-				},
-				{
-					title: "Deploying",
-					url: "#",
-				},
-				{
-					title: "Upgrading",
-					url: "#",
-				},
-				{
-					title: "Examples",
-					url: "#",
-				},
-			],
-		},
-		{
-			title: "API Reference",
-			url: "#",
-			items: [
-				{
-					title: "Components",
-					url: "#",
-				},
-				{
-					title: "File Conventions",
-					url: "#",
-				},
-				{
-					title: "Functions",
-					url: "#",
-				},
-				{
-					title: "next.config.js Options",
-					url: "#",
-				},
-				{
-					title: "CLI",
-					url: "#",
-				},
-				{
-					title: "Edge Runtime",
-					url: "#",
-				},
-			],
-		},
-		{
-			title: "Architecture",
-			url: "#",
-			items: [
-				{
-					title: "Accessibility",
-					url: "#",
-				},
-				{
-					title: "Fast Refresh",
-					url: "#",
-				},
-				{
-					title: "Next.js Compiler",
-					url: "#",
-				},
-				{
-					title: "Supported Browsers",
-					url: "#",
-				},
-				{
-					title: "Turbopack",
-					url: "#",
-				},
-			],
-		},
-	],
-};
+// Local type for chat row from Supabase
+interface Chat {
+	id: string;
+	title: string; // adjust depending on your schema
+	created_at: string;
+	user_id: string;
+}
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export function AppSidebar() {
+	const [chats, setChats] = React.useState<Chat[]>([]);
+	const [loading, setLoading] = React.useState(true);
+
+	React.useEffect(() => {
+		const fetchChats = async () => {
+			try {
+				const res = await actions.readChats();
+
+				if (res.data?.message) {
+					setChats(res.data.message as Chat[]); // message contains your DB rows
+				}
+			} catch (err) {
+				console.error("Error fetching chats:", err);
+			} finally {
+				setLoading(false);
+			}
+		};
+
+		fetchChats();
+	}, []);
+
 	return (
-		<Sidebar {...props}>
+		<Sidebar>
 			<SidebarHeader>
 				<SidebarMenu>
 					<SidebarMenuItem>
@@ -157,22 +55,38 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 									<GalleryVerticalEnd className="size-4" />
 								</div>
 								<div className="flex flex-col gap-0.5 leading-none">
-									<span className="font-medium">Documentation</span>
-									<span className="">v1.0.0</span>
+									<span className="font-medium">My Chats</span>
 								</div>
 							</a>
 						</SidebarMenuButton>
 					</SidebarMenuItem>
 				</SidebarMenu>
 			</SidebarHeader>
+
 			<SidebarContent>
-				<NavMain items={data.navMain} />
+				<SidebarMenu>
+					{loading && (
+						<div className="p-2 text-sm text-muted-foreground">
+							Loading chats…
+						</div>
+					)}
+
+					{!loading && chats.length === 0 && (
+						<div className="p-2 text-sm text-muted-foreground">
+							No chats yet
+						</div>
+					)}
+
+					<NavMain items={chats} />
+				</SidebarMenu>
 			</SidebarContent>
+
 			<SidebarFooter>
-				<div className="p-1">
-					<SidebarOptInForm />
+				<div className="p-2 text-xs text-muted-foreground">
+					{new Date().getFullYear()} © YourApp
 				</div>
 			</SidebarFooter>
+
 			<SidebarRail />
 		</Sidebar>
 	);
