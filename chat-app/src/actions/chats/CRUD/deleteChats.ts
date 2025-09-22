@@ -2,13 +2,19 @@ import { defineAction, type ActionAPIContext } from "astro:actions";
 import { z } from "astro:schema";
 import { supabaseServerClient } from "@/lib/supabase";
 
-const deleteAllChats = async (context: ActionAPIContext) => {
+const deleteAllChats = async (
+	activeUserId: string,
+	context: ActionAPIContext
+) => {
 	try {
 		const supabaseBE = supabaseServerClient({
 			request: context.request,
 			cookies: context.cookies,
 		});
-		const { error, data } = await supabaseBE.from("chats").select("*");
+		const { error, data } = await supabaseBE
+			.from("chats")
+			.select("*")
+			.eq("user_id", activeUserId);
 
 		if (error) {
 			console.error("Failed to fetch chats for deletion", error.message);
@@ -51,7 +57,11 @@ const deleteAllChats = async (context: ActionAPIContext) => {
 };
 
 export const deleteChats = defineAction({
-	handler: async (_, context) => {
-		return deleteAllChats(context);
+	input: z.object({
+		activeUserId: z.string(),
+	}),
+	handler: async (input, context) => {
+		const { activeUserId } = input;
+		return deleteAllChats(activeUserId, context);
 	},
 });
