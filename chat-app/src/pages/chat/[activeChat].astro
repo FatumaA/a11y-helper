@@ -1,4 +1,5 @@
 ---
+import WCAGChatAuthedPage from "@/components/chat-ui/WCAGChatAuthedPage";
 import WCAGChatPage from "@/components/chat-ui/WCAGChatPage";
 import AuthedChatLayout from "@/layouts/AuthedChatLayout.astro";
 import { supabaseServerClient } from "@/lib/supabase";
@@ -36,9 +37,5 @@ const messages = Array.isArray(chatMessages?.message)
 ---
 
 <AuthedChatLayout>
-	<WCAGChatPage
-		client:load
-		initialMessages={messages}
-		activeChatId={activeChat}
-	/>
+	<WCAGChatAuthedPage client:load />
 </AuthedChatLayout>
