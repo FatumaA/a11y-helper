@@ -145,12 +145,22 @@ export function AppSidebar() {
 
 	// Delete all handler
 	const handleDeleteAllChats = async () => {
-		const res = await actions.deleteChats();
-
-		if (!res.data?.success) {
-			toast.error(res.data?.message);
-		} else {
-			toast.success("Chats deleted successfully");
+		if (!user?.id) return;
+		setLoading(true);
+		try {
+			const res = await actions.deleteChats({ activeUserId: user.id });
+			if (!res.data?.success) {
+				toast.error("Failed to delete chats");
+			} else {
+				// Update local UI immediately
+				setChats([]);
+				toast.success("Chats deleted successfully");
+			}
+		} catch (err) {
+			console.error("deleteChats error", err);
+			toast.error("An error occurred, please try again");
+		} finally {
+			setLoading(false);
 		}
 	};
 
