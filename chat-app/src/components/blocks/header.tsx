@@ -16,6 +16,11 @@ const Header = () => {
 	const isLoading = useStore(isLoadingStore);
 
 	const handleAuth = (actionType: AuthAction) => {
+		const initialChat = sessionStorage.getItem("temp-chat");
+		if (initialChat) {
+			localStorage.setItem("temp-chat", initialChat);
+			sessionStorage.clear();
+		}
 		navigate("/auth", { state: { actionType } });
 	};
 
