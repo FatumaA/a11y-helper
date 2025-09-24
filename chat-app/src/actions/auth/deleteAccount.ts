@@ -2,13 +2,7 @@ import { defineAction, type ActionAPIContext } from "astro:actions";
 import { supabasePrivateClient } from "../../lib/supabase";
 import { z } from "astro:schema";
 
-const domain =
-	import.meta.env.MODE === "production"
-		? "https://wcagexplained.com"
-		: "http://localhost:4321";
-
 const deleteUserAccount = async (
-	// { email, captchaToken }: { email: string; captchaToken: string },
 	{ activeUserId }: { activeUserId: string },
 	context: ActionAPIContext
 ) => {

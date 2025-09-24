@@ -20,10 +20,12 @@ const createDBChat = async (
 			return { success: false, message: "Not authenticated" };
 		}
 
-		const chatCount = (await supabaseBE.from("chats").select()).count;
+		// request count explicitly
+		const { count: chatCount } = await supabaseBE
+			.from("chats")
+			.select("id", { count: "exact" });
 
 		const title = `Chat ${chatCount ? chatCount + 1 : 1}`;
-
 		// Create new chat
 		const {
 			data: chat,

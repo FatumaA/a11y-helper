@@ -1,7 +1,7 @@
 import { defineAction, type ActionAPIContext } from "astro:actions";
 import { z } from "astro:schema";
 import { createClient } from "@supabase/supabase-js";
-import { embedMany } from "ai";
+import { embed, embedMany } from "ai";
 import { createCohere } from "@ai-sdk/cohere";
 import { supabasePrivateClient } from "@/lib/supabase";
 
@@ -17,15 +17,15 @@ const generateLLMResponse = async (
 
 		const cohere = createCohere({ apiKey: import.meta.env.COHERE_API_KEY });
 
-		// embeddings + supabase search …
-		const { embeddings } = await embedMany({
+		// embed + supabase search …
+		const { embedding } = await embed({
 			model: cohere.textEmbeddingModel("embed-english-light-v3.0"),
-			values: [userInput.trim()],
+			value: userInput.trim(),
 		});
 
 		const { data: results, error } = await supabase.rpc("search_wcag_smart", {
 			user_query: userInput.trim(),
-			query_embedding: embeddings[0],
+			query_embedding: embedding,
 			match_count: 5,
 		});
 
@@ -47,16 +47,20 @@ const generateLLMResponse = async (
 			success: true,
 			message: {
 				userInput,
-				results: results, // Return raw results for API to handle
+				results, // Return raw results for API to handle
 			},
 		};
 	} catch (err) {
+		console.error(
+			"Error generating LLM response:",
+			err instanceof Error ? err.message : err
+		);
 		return {
 			success: false,
 			message: {
 				userInput,
 				results: [],
-				error: err instanceof Error ? err.message : "Failed to fetch context",
+				error: "Failed to fetch context",
 			},
 		};
 	}

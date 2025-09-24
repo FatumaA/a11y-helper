@@ -5,12 +5,19 @@ import {
 } from "@supabase/ssr";
 import type { AstroCookies } from "astro";
 
-const supabaseURL: string = import.meta.env.PUBLIC_SUPABASE_URL;
+const supabaseURL: string =
+	import.meta.env.MODE === "production"
+		? import.meta.env.PUBLIC_SUPABASE_URL
+		: import.meta.env.PUBLIC_LOCAL_SUPABASE_URL;
+const supabaseAnonKey: string =
+	import.meta.env.MODE === "production"
+		? import.meta.env.PUBLIC_SUPABASE_ANON_KEY
+		: import.meta.env.PUBLIC_LOCAL_SUPABASE_ANON_KEY;
 
-const supabaseAnonKey: string = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
-
-const supabaseServiceRoleKey: string = import.meta.env
-	.SUPABASE_SERVICE_ROLE_KEY;
+const supabaseServiceRoleKey: string =
+	import.meta.env.MODE === "production"
+		? import.meta.env.SUPABASE_SERVICE_ROLE_KEY
+		: import.meta.env.SUPABASE_LOCAL_SERVICE_ROLE_KEY;
 
 export function supabaseServerClient({
 	request,
