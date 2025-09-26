@@ -19,7 +19,11 @@ const Header = () => {
 		const initialChat = sessionStorage.getItem("temp-chat");
 		if (initialChat) {
 			localStorage.setItem("temp-chat", initialChat);
-			sessionStorage.clear();
+			try {
+				sessionStorage.removeItem("temp-chat");
+			} catch (e) {
+				console.warn("Failed to remove temp-chat from sessionStorage:", e);
+			}
 		}
 		navigate("/auth", { state: { actionType } });
 	};
