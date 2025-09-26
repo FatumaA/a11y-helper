@@ -1,39 +1,38 @@
 ---
 import WCAGChatAuthedPage from "@/components/chat-ui/WCAGChatAuthedPage";
-import WCAGChatPage from "@/components/chat-ui/WCAGChatPage";
 import AuthedChatLayout from "@/layouts/AuthedChatLayout.astro";
 import { supabaseServerClient } from "@/lib/supabase";
 import { actions } from "astro:actions";
 
-const supabaseBE = supabaseServerClient({
-	request: Astro.request,
-	cookies: Astro.cookies,
-});
+// const supabaseBE = supabaseServerClient({
+// 	request: Astro.request,
+// 	cookies: Astro.cookies,
+// });
 
-const {
-	data: { user },
-} = await supabaseBE.auth.getUser();
+// const {
+// 	data: { user },
+// } = await supabaseBE.auth.getUser();
 
-const activeUser = user;
-const { activeChat } = Astro.params;
+// const activeUser = user;
+// const { activeChat } = Astro.params;
 
-const chatResult = await Astro.callAction(actions.getChat, {
-	chatId: activeChat!,
-});
+// const chatResult = await Astro.callAction(actions.getChat, {
+// 	chatId: activeChat!,
+// });
 
-const { data } = chatResult;
+// const { data } = chatResult;
 
-if (!data?.success || typeof data.message === "string") {
-	return Astro.redirect("/chat");
-}
+// if (!data?.success || typeof data.message === "string") {
+// 	return Astro.redirect("/chat");
+// }
 
-const { data: chatMessages } = await Astro.callAction(actions.readChatMsgs, {
-	activeChatId: activeChat as string,
-});
+// const { data: chatMessages } = await Astro.callAction(actions.readChatMsgs, {
+// 	activeChatId: activeChat as string,
+// });
 
-const messages = Array.isArray(chatMessages?.message)
-	? chatMessages.message
-	: [];
+// const messages = Array.isArray(chatMessages?.message)
+// 	? chatMessages.message
+// 	: [];
 ---
 
 <AuthedChatLayout>
