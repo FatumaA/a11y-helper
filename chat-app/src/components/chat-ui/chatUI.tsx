@@ -77,7 +77,7 @@ export default function ChatUI({
 		onFinish: async (message) => {
 			if (chatId && user?.id) {
 				try {
-					await actions.insertChatMsg({
+					const result = await actions.insertChatMsg({
 						chat_id: chatId,
 						role:
 							message.message.role === "user" ||
@@ -89,6 +89,15 @@ export default function ChatUI({
 							.join(""),
 						message_id: message.message.id,
 					});
+
+					// Clear unauthenticated session cache only after a successful save
+					if (result?.data?.success) {
+						try {
+							sessionStorage.removeItem(SESSION_STORAGE_KEY);
+						} catch (e) {
+							console.warn("Failed to clear session storage after insert:", e);
+						}
+					}
 				} catch (error) {
 					console.error("Failed to save message:", error);
 				}
@@ -118,6 +127,15 @@ export default function ChatUI({
 							}));
 						}
 						setMessages(uiMessages);
+						// Clear any unauthenticated session messages after successfully loading DB messages
+						try {
+							sessionStorage.removeItem(SESSION_STORAGE_KEY);
+						} catch (e) {
+							console.warn(
+								"Failed to clear session storage after loading DB messages:",
+								e
+							);
+						}
 						return true;
 					}
 					throw new Error("Failed to load messages");
@@ -195,6 +213,16 @@ export default function ChatUI({
 								.join(""),
 							message_id: lastMessage.id,
 						});
+
+						// Clear session cache after successful save (safe-guard)
+						try {
+							sessionStorage.removeItem(SESSION_STORAGE_KEY);
+						} catch (e) {
+							console.warn(
+								"Failed to clear session storage after authenticated save:",
+								e
+							);
+						}
 					} catch (error) {
 						console.error("Failed to save user message:", error);
 					}
@@ -236,22 +264,33 @@ export default function ChatUI({
 		<div className="flex flex-col max-w-4xl w-full">
 			{/* Chat Messages */}
 			<Conversation className="overflow-hidden p-4 space-y-4">
+				{/* !loadingState.isReady && (
+					<div>
+						{loadingState.current === "initializing" && <ChatLoadingSkeleton />}
+						{loadingState.current === "loading_chat" && <ChatLoadingSkeleton />}
+					</div>
+				) */}
+
 				{!loadingState.isReady && (
 					<div>
 						{loadingState.current === "initializing" && <ChatLoadingSkeleton />}
 						{loadingState.current === "loading_chat" && <ChatLoadingSkeleton />}
 					</div>
 				)}
-				<div className="text-center text-muted-foreground mt-10 transition-opacity duration-500 ease-out opacity-100">
-					<div className="max-w-md mx-auto">
-						<h2 className="text-2xl font-bold mb-2 text-foreground">
-							WCAG Accessibility Assistant
-						</h2>
-						<p className="mb-4">
-							Ask anything about web accessibility guidelines!
-						</p>
+
+				{messages.length === 0 && (
+					<div className="text-center text-muted-foreground mt-10 transition-opacity duration-500 ease-out opacity-100">
+						<div className="max-w-md mx-auto">
+							<h2 className="text-2xl font-bold mb-2 text-foreground">
+								WCAG Accessibility Assistant
+							</h2>
+							<p className="mb-4">
+								Ask anything about web accessibility guidelines!
+							</p>
+						</div>
 					</div>
-				</div>
+				)}
+
 				{loadingState.isReady && (
 					<div className="space-y-4">
 						{messages.map((message) => (
