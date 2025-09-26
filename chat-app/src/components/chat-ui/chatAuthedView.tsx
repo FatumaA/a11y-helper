@@ -6,9 +6,9 @@ import { navigate } from "astro:transitions/client";
 import { toast } from "sonner";
 import { useLoadingState } from "@/hooks/useLoadingState";
 import { ChatLoadingSkeleton } from "@/components/chat-ui/chat-skeleton";
-import ChatDashboard from "./ChatDashboard";
+import ChatDashboard from "./chatDashboard";
 
-const LOCAL_STORAGE_KEY = "temp-chat";
+const STORAGE_KEY = "temp-chat";
 
 export default function ChatAuthedView() {
 	const user = useStore(userStore);
@@ -17,7 +17,7 @@ export default function ChatAuthedView() {
 
 	const loadMessagesFromLocalStorage = () => {
 		try {
-			const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
+			const stored = localStorage.getItem(STORAGE_KEY);
 			return stored ? JSON.parse(stored) : [];
 		} catch (error) {
 			console.warn("Failed to load messages from localStorage:", error);
@@ -44,7 +44,13 @@ export default function ChatAuthedView() {
 			});
 
 			if (result.data?.success) {
-				localStorage.removeItem(LOCAL_STORAGE_KEY);
+				localStorage.removeItem(STORAGE_KEY);
+				// Also clear sessionStorage in case temp chat was saved there
+				try {
+					sessionStorage.removeItem(STORAGE_KEY);
+				} catch (e) {
+					console.warn("Failed to clear session storage after migration:", e);
+				}
 				return result.data.message;
 			} else {
 				toast.error("Failed to save chat to your account");
