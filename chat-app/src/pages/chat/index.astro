@@ -1,6 +1,5 @@
 ---
-import WCAGChatAuthedPage from "@/components/chat-ui/WCAGChatAuthedPage";
-import WCAGChatPage from "@/components/chat-ui/WCAGChatPage";
+import ChatAuthedView from "@/components/chat-ui/chatAuthedView";
 import AuthedChatLayout from "@/layouts/AuthedChatLayout.astro";
 import { supabaseServerClient } from "@/lib/supabase";
 
@@ -17,5 +16,5 @@ const activeUser = user;
 ---
 
 <AuthedChatLayout>
-	<WCAGChatAuthedPage client:load />
+	<ChatAuthedView client:load />
 </AuthedChatLayout>
