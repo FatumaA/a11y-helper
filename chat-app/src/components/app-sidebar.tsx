@@ -50,6 +50,7 @@ import { toast } from "sonner";
 import { clearUser, userStore } from "@/stores/userStore";
 import { useStore } from "@nanostores/react";
 import { navigate } from "astro:transitions/client";
+import { ConfirmDialog } from "./blocks/confirm-dialog";
 
 type Chat = Database["public"]["Tables"]["chats"]["Row"];
 type Theme = "light" | "dark" | "system";
@@ -61,6 +62,7 @@ export function AppSidebar() {
 	const [loading, setLoading] = React.useState(true);
 	const [openSettings, setOpenSettings] = React.useState(false);
 	const [confirmDelete, setConfirmDelete] = React.useState(false);
+	const [confirmDeleteAll, setConfirmDeleteAll] = React.useState(false);
 
 	const [theme, setThemeState] = React.useState<Theme>(
 		(localStorage.getItem("theme") as Theme) || "system"
@@ -209,7 +211,7 @@ export function AppSidebar() {
 						<Button
 							className="cursor-pointer m-6"
 							variant="destructive"
-							onClick={handleDeleteAllChats}
+							onClick={() => setConfirmDeleteAll(true)}
 						>
 							Delete All Chats
 						</Button>
@@ -286,27 +288,16 @@ export function AppSidebar() {
 				</DialogContent>
 			</Dialog>
 
-			{/* Confirm Delete Alert */}
-			<AlertDialog open={confirmDelete} onOpenChange={setConfirmDelete}>
-				<AlertDialogContent>
-					<AlertDialogHeader>
-						<AlertDialogTitle>Delete Account</AlertDialogTitle>
-						<AlertDialogDescription>
-							This will permanently delete your account and all associated data.
-							Are you absolutely sure?
-						</AlertDialogDescription>
-					</AlertDialogHeader>
-					<AlertDialogFooter>
-						<AlertDialogCancel>Cancel</AlertDialogCancel>
-						<AlertDialogAction
-							onClick={handleDeleteAccount}
-							className={buttonVariants({ variant: "destructive" })}
-						>
-							Delete
-						</AlertDialogAction>
-					</AlertDialogFooter>
-				</AlertDialogContent>
-			</AlertDialog>
+			{/* Confirm Delete All Chats */}
+			<ConfirmDialog
+				open={confirmDeleteAll}
+				onOpenChange={setConfirmDeleteAll}
+				title="Delete All Chats"
+				description={`Are you sure you want to permanently delete all your (${chats.length}) chats? This action cannot be undone.`}
+				confirmLabel="Delete"
+				variant="destructive"
+				onConfirm={handleDeleteAllChats}
+			/>
 
 			<SidebarRail />
 		</Sidebar>
