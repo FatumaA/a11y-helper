@@ -186,13 +186,17 @@ export default function ChatUI({
 
 		if (!message.text?.trim() || isLoading) return;
 
+		// Clear input immediately for better UX
+		setInput("");
+
 		// Send message to existing chat
 		try {
 			await sendMessage({ text: message.text });
-			setInput("");
 		} catch (error) {
 			console.error("Failed to send message:", error);
 			toast.error("Failed to send message. Please try again.");
+			// Restore input on error
+			setInput(message.text);
 		}
 	};
 
