@@ -27,108 +27,28 @@ const activeUser = user
 const serializedUser = activeUser ? JSON.stringify(activeUser) : null;
 ---
 
-<script is:inline>
-	const getThemePreference = () => {
+<!-- Combined script for flash prevention and user data -->
+<script is:inline define:vars={{ serializedUser }}>
+	// Prevent theme flash
+	const getInitialTheme = () => {
 		if (typeof localStorage !== "undefined" && localStorage.getItem("theme")) {
-			const storedTheme = localStorage.getItem("theme");
-			// Handle all three theme options: light, dark, system
-			if (storedTheme === "system") {
+			const stored = localStorage.getItem("theme");
+			if (stored === "system") {
 				return window.matchMedia("(prefers-color-scheme: dark)").matches
 					? "dark"
 					: "light";
 			}
-			return storedTheme;
+			return stored;
 		}
 		return window.matchMedia("(prefers-color-scheme: dark)").matches
 			? "dark"
 			: "light";
 	};
 
-	const applyTheme = () => {
-		const isDark = getThemePreference() === "dark";
-		document.documentElement.classList[isDark ? "add" : "remove"]("dark");
-	};
+	const isDark = getInitialTheme() === "dark";
+	document.documentElement.classList[isDark ? "add" : "remove"]("dark");
 
-	// Apply theme initially
-	applyTheme();
-
-	// Listen for system preference changes when theme is "system"
-	const setupSystemListener = () => {
-		const mq = window.matchMedia("(prefers-color-scheme: dark)");
-		const handler = () => {
-			if (
-				typeof localStorage !== "undefined" &&
-				localStorage.getItem("theme") === "system"
-			) {
-				applyTheme();
-			}
-		};
-		mq.addEventListener("change", handler);
-	};
-
-	setupSystemListener();
-
-	// Re-setup after route transitions
-	document.addEventListener("astro:after-swap", () => {
-		// Small delay to ensure DOM is ready
-		setTimeout(() => {
-			applyTheme();
-			setupSystemListener();
-		}, 10);
-	});
-
-	if (typeof localStorage !== "undefined") {
-		let isUpdatingFromCode = false;
-		let lastKnownTheme = localStorage.getItem("theme");
-
-		const observer = new MutationObserver(() => {
-			// Prevent infinite loops when we're updating programmatically
-			if (isUpdatingFromCode) return;
-
-			const isDark = document.documentElement.classList.contains("dark");
-			const currentStoredTheme = localStorage.getItem("theme");
-
-			// Only update localStorage if:
-			// 1. Current theme isn't "system"
-			// 2. AND the stored theme actually changed (not just a route transition)
-			// 3. AND it's not a programmatic update
-			if (
-				currentStoredTheme !== "system" &&
-				currentStoredTheme !== lastKnownTheme
-			) {
-				localStorage.setItem("theme", isDark ? "dark" : "light");
-				lastKnownTheme = isDark ? "dark" : "light";
-			}
-		});
-
-		observer.observe(document.documentElement, {
-			attributes: true,
-			attributeFilter: ["class"],
-		});
-
-		// Helper function for programmatic theme changes
-		window.setThemeProgrammatically = (theme) => {
-			isUpdatingFromCode = true;
-			localStorage.setItem("theme", theme);
-			lastKnownTheme = theme;
-
-			const isDark =
-				theme === "dark" ||
-				(theme === "system" &&
-					window.matchMedia("(prefers-color-scheme: dark)").matches);
-			document.documentElement.classList[isDark ? "add" : "remove"]("dark");
-
-			// Use a longer timeout to ensure the DOM update completes
-			setTimeout(() => {
-				isUpdatingFromCode = false;
-			}, 50);
-		};
-	}
-</script>
-
-<!-- Pass user data to client-side via global variable -->
-<script is:inline define:vars={{ serializedUser }}>
-	// Set initial user data on window for client-side access
+	// Set user data
 	window.initialUserData = serializedUser ? JSON.parse(serializedUser) : null;
 </script>
 
@@ -151,4 +71,5 @@ const serializedUser = activeUser ? JSON.stringify(activeUser) : null;
 
 		<slot />
 	</body>
-</html>
+</html>;
+
