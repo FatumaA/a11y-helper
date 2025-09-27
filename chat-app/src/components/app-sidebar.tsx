@@ -45,6 +45,12 @@ import { ConfirmAlert } from "./blocks/confirm-alert";
 type Chat = Database["public"]["Tables"]["chats"]["Row"];
 type Theme = "light" | "dark" | "system";
 
+declare global {
+	interface Window {
+		setThemeProgrammatically?: (theme: string) => void;
+	}
+}
+
 export function AppSidebar() {
 	const user = useStore(userStore);
 
@@ -54,39 +60,46 @@ export function AppSidebar() {
 	const [confirmDelete, setConfirmDelete] = React.useState(false);
 	const [confirmDeleteAll, setConfirmDeleteAll] = React.useState(false);
 
-	const [theme, setThemeState] = React.useState<Theme>(
-		(localStorage.getItem("theme") as Theme) || "system"
-	);
+	const [theme, setThemeState] = React.useState<Theme>("system");
 
-	// Apply theme and save to localStorage whenever theme changes
+	// Initialize theme from localStorage and apply it
 	React.useEffect(() => {
-		const applyTheme = () => {
-			let isDark = false;
+		// Get theme from localStorage
+		const storedTheme = (localStorage.getItem("theme") as Theme) || "system";
+		setThemeState(storedTheme);
+	}, []);
 
-			if (theme === "dark") {
-				isDark = true;
-			} else if (theme === "light") {
-				isDark = false;
-			} else if (theme === "system") {
-				isDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-			}
+	const handleThemeChange = (newTheme: Theme) => {
+		setThemeState(newTheme);
 
+		// Use the helper function from the layout script
+		if (typeof window !== "undefined" && window.setThemeProgrammatically) {
+			window.setThemeProgrammatically(newTheme);
+		} else {
+			// Fallback for when the helper isn't available
+			localStorage.setItem("theme", newTheme);
+			const isDark =
+				newTheme === "dark" ||
+				(newTheme === "system" &&
+					window.matchMedia("(prefers-color-scheme: dark)").matches);
 			document.documentElement.classList[isDark ? "add" : "remove"]("dark");
-		};
-
-		applyTheme();
-
-		// Save theme preference to localStorage
-		localStorage.setItem("theme", theme);
-
-		// Only listen to OS theme changes if user chose "system"
-		if (theme === "system") {
-			const mq = window.matchMedia("(prefers-color-scheme: dark)");
-			const handler = () => applyTheme();
-			mq.addEventListener("change", handler);
-			return () => mq.removeEventListener("change", handler);
 		}
-	}, [theme]);
+
+		// If setting to system, listen for OS changes
+		if (newTheme === "system") {
+			///mediaquery
+			const mq = window.matchMedia("(prefers-color-scheme: dark)");
+			const handler = () => {
+				if (localStorage.getItem("theme") === "system") {
+					const isDark = window.matchMedia(
+						"(prefers-color-scheme: dark)"
+					).matches;
+					document.documentElement.classList[isDark ? "add" : "remove"]("dark");
+				}
+			};
+			mq.addEventListener("change", handler);
+		}
+	};
 
 	React.useEffect(() => {
 		const fetchChats = async () => {
@@ -261,13 +274,17 @@ export function AppSidebar() {
 										</Button>
 									</DropdownMenuTrigger>
 									<DropdownMenuContent align="end" className="w-40">
-										<DropdownMenuItem onClick={() => setThemeState("light")}>
+										<DropdownMenuItem
+											onClick={() => handleThemeChange("light")}
+										>
 											<Sun className="mr-2 h-4 w-4" /> Light
 										</DropdownMenuItem>
-										<DropdownMenuItem onClick={() => setThemeState("dark")}>
+										<DropdownMenuItem onClick={() => handleThemeChange("dark")}>
 											<Moon className="mr-2 h-4 w-4" /> Dark
 										</DropdownMenuItem>
-										<DropdownMenuItem onClick={() => setThemeState("system")}>
+										<DropdownMenuItem
+											onClick={() => handleThemeChange("system")}
+										>
 											<Laptop className="mr-2 h-4 w-4" /> System
 										</DropdownMenuItem>
 									</DropdownMenuContent>
