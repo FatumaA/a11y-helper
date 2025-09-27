@@ -1,12 +1,18 @@
 "use client";
 import { actions } from "astro:actions";
 import { navigate } from "astro:transitions/client";
-import { type User } from "@supabase/supabase-js";
 import { Button } from "../ui/button";
 import { toast } from "sonner";
 import { useStore } from "@nanostores/react";
-import { clearUser, isLoadingStore, userStore } from "@/stores/userStore";
-import { Accessibility } from "lucide-react";
+import { clearUser, userStore } from "@/stores/userStore";
+import { Accessibility, Laptop, Moon, Sun } from "lucide-react";
+import { setTheme, themeStore } from "@/stores/themeStore";
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
 
 const enum AuthAction {
 	SIGN_IN = "sign-in",
@@ -15,7 +21,7 @@ const enum AuthAction {
 
 const Header = () => {
 	const user = useStore(userStore);
-	const isLoading = useStore(isLoadingStore);
+	const theme = useStore(themeStore);
 
 	const handleAuth = (actionType: AuthAction) => {
 		const initialChat = sessionStorage.getItem("temp-chat");
@@ -49,34 +55,61 @@ const Header = () => {
 			<a href="/" aria-label="Home" className="cursor-pointer">
 				<Accessibility className="w-7 h-7 text-primary" />
 			</a>
-			{isSignedIn ? (
-				<div className="flex items-center gap-4">
-					<p>{user?.email}</p>
-					<Button
-						className="cursor-pointer"
-						variant="outline"
-						onClick={handleSignOut}
-					>
-						Sign Out
-					</Button>
+			<div className="flex items-center gap-4">
+				{isSignedIn ? (
+					<>
+						<p>{user?.email}</p>
+						<Button
+							className="cursor-pointer"
+							variant="outline"
+							onClick={handleSignOut}
+						>
+							Sign Out
+						</Button>
+					</>
+				) : (
+					<>
+						<Button
+							className="cursor-pointer"
+							onClick={() => handleAuth(AuthAction.SIGN_IN)}
+						>
+							Sign In
+						</Button>
+						<Button
+							className="cursor-pointer"
+							variant="outline"
+							onClick={() => handleAuth(AuthAction.SIGN_UP)}
+						>
+							Sign Up
+						</Button>
+					</>
+				)}
+
+				{/* Theme dropdown - always visible */}
+				<div className="w-fit">
+					<DropdownMenu>
+						<DropdownMenuTrigger asChild>
+							<Button variant="outline" className="w-full justify-between">
+								{theme}
+								{theme === "light" && <Sun className="h-4 w-4" />}
+								{theme === "dark" && <Moon className="h-4 w-4" />}
+								{theme === "system" && <Laptop className="h-4 w-4" />}
+							</Button>
+						</DropdownMenuTrigger>
+						<DropdownMenuContent align="end" className="w-40">
+							<DropdownMenuItem onClick={() => setTheme("light")}>
+								<Sun className="mr-2 h-4 w-4" /> Light
+							</DropdownMenuItem>
+							<DropdownMenuItem onClick={() => setTheme("dark")}>
+								<Moon className="mr-2 h-4 w-4" /> Dark
+							</DropdownMenuItem>
+							<DropdownMenuItem onClick={() => setTheme("system")}>
+								<Laptop className="mr-2 h-4 w-4" /> System
+							</DropdownMenuItem>
+						</DropdownMenuContent>
+					</DropdownMenu>
 				</div>
-			) : (
-				<div className="flex items-center gap-4">
-					<Button
-						className="cursor-pointer"
-						onClick={() => handleAuth(AuthAction.SIGN_IN)}
-					>
-						Sign In
-					</Button>
-					<Button
-						className="cursor-pointer"
-						variant="outline"
-						onClick={() => handleAuth(AuthAction.SIGN_UP)}
-					>
-						Sign Up
-					</Button>
-				</div>
-			)}
+			</div>
 		</div>
 	);
 };
