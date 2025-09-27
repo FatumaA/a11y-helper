@@ -292,8 +292,16 @@ export function AppSidebar() {
 			<ConfirmDialog
 				open={confirmDeleteAll}
 				onOpenChange={setConfirmDeleteAll}
+				description={
+					<>
+						Are you sure you want to delete{" "}
+						<span className="font-medium">
+							{"all your chats (" + chats.length + ")"}
+						</span>
+						? This action cannot be undone.
+					</>
+				}
 				title="Delete All Chats"
-				description={`Are you sure you want to permanently delete all your (${chats.length}) chats? This action cannot be undone.`}
 				confirmLabel="Delete"
 				variant="destructive"
 				onConfirm={handleDeleteAllChats}
