@@ -40,6 +40,7 @@ export default function ChatUI({
 	const [chatId] = useState<string | null>(initialChatId || null);
 	const loadingState = useLoadingState("initializing");
 	const [showSaveDialog, setShowSaveDialog] = useState(false);
+	const [dismissedAtCount, setDismissedAtCount] = useState<number | null>(null);
 
 	const mode: "authenticated" | "unauthenticated" =
 		user && user.id ? "authenticated" : "unauthenticated";
@@ -252,9 +253,15 @@ export default function ChatUI({
 	// Check if we should show the save dialog when messages reach 10
 	useEffect(() => {
 		if (mode === "unauthenticated" && messages.length >= 10) {
-			setShowSaveDialog(true);
+			// Only show if user hasn't dismissed it, or if message count has increased since dismissal
+			if (
+				dismissedAtCount === null ||
+				messages.length >= dismissedAtCount + 10
+			) {
+				setShowSaveDialog(true);
+			}
 		}
-	}, [mode, messages.length]);
+	}, [mode, messages.length, dismissedAtCount]);
 
 	// Add beforeunload event listener for tab close detection
 	useEffect(() => {
@@ -420,7 +427,13 @@ export default function ChatUI({
 			{/* Temp Chat Save Dialog */}
 			<ActionDialog
 				open={showSaveDialog}
-				onOpenChange={setShowSaveDialog}
+				onOpenChange={(open) => {
+					setShowSaveDialog(open);
+					// Track dismissal when user cancels (but not when they sign up)
+					if (!open && showSaveDialog) {
+						setDismissedAtCount(messages.length);
+					}
+				}}
 				messageCount={messages.length}
 			/>
 		</div>
