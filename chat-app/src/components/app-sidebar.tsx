@@ -41,9 +41,9 @@ import { clearUser, userStore } from "@/stores/userStore";
 import { useStore } from "@nanostores/react";
 import { navigate } from "astro:transitions/client";
 import { ConfirmAlert } from "./blocks/confirm-alert";
+import { themeStore, setTheme, type Theme } from "@/stores/themeStore";
 
 type Chat = Database["public"]["Tables"]["chats"]["Row"];
-type Theme = "light" | "dark" | "system";
 
 declare global {
 	interface Window {
@@ -53,53 +53,13 @@ declare global {
 
 export function AppSidebar() {
 	const user = useStore(userStore);
+	const theme = useStore(themeStore);
 
 	const [chats, setChats] = React.useState<Chat[]>([]);
 	const [loading, setLoading] = React.useState(true);
 	const [openSettings, setOpenSettings] = React.useState(false);
 	const [confirmDelete, setConfirmDelete] = React.useState(false);
 	const [confirmDeleteAll, setConfirmDeleteAll] = React.useState(false);
-
-	const [theme, setThemeState] = React.useState<Theme>("system");
-
-	// Initialize theme from localStorage and apply it
-	React.useEffect(() => {
-		// Get theme from localStorage
-		const storedTheme = (localStorage.getItem("theme") as Theme) || "system";
-		setThemeState(storedTheme);
-	}, []);
-
-	const handleThemeChange = (newTheme: Theme) => {
-		setThemeState(newTheme);
-
-		// Use the helper function from the layout script
-		if (typeof window !== "undefined" && window.setThemeProgrammatically) {
-			window.setThemeProgrammatically(newTheme);
-		} else {
-			// Fallback for when the helper isn't available
-			localStorage.setItem("theme", newTheme);
-			const isDark =
-				newTheme === "dark" ||
-				(newTheme === "system" &&
-					window.matchMedia("(prefers-color-scheme: dark)").matches);
-			document.documentElement.classList[isDark ? "add" : "remove"]("dark");
-		}
-
-		// If setting to system, listen for OS changes
-		if (newTheme === "system") {
-			///mediaquery
-			const mq = window.matchMedia("(prefers-color-scheme: dark)");
-			const handler = () => {
-				if (localStorage.getItem("theme") === "system") {
-					const isDark = window.matchMedia(
-						"(prefers-color-scheme: dark)"
-					).matches;
-					document.documentElement.classList[isDark ? "add" : "remove"]("dark");
-				}
-			};
-			mq.addEventListener("change", handler);
-		}
-	};
 
 	React.useEffect(() => {
 		const fetchChats = async () => {
@@ -274,17 +234,13 @@ export function AppSidebar() {
 										</Button>
 									</DropdownMenuTrigger>
 									<DropdownMenuContent align="end" className="w-40">
-										<DropdownMenuItem
-											onClick={() => handleThemeChange("light")}
-										>
+										<DropdownMenuItem onClick={() => setTheme("light")}>
 											<Sun className="mr-2 h-4 w-4" /> Light
 										</DropdownMenuItem>
-										<DropdownMenuItem onClick={() => handleThemeChange("dark")}>
+										<DropdownMenuItem onClick={() => setTheme("dark")}>
 											<Moon className="mr-2 h-4 w-4" /> Dark
 										</DropdownMenuItem>
-										<DropdownMenuItem
-											onClick={() => handleThemeChange("system")}
-										>
+										<DropdownMenuItem onClick={() => setTheme("system")}>
 											<Laptop className="mr-2 h-4 w-4" /> System
 										</DropdownMenuItem>
 									</DropdownMenuContent>
