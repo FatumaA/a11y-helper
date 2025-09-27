@@ -23,7 +23,7 @@ type ConfirmDialogProps = {
 	onConfirm: () => Promise<void> | void;
 };
 
-export function ConfirmDialog({
+export function ConfirmAlert({
 	open,
 	onOpenChange,
 	title,
@@ -78,4 +78,4 @@ export function ConfirmDialog({
 	);
 }
 
-export default ConfirmDialog;
+export default ConfirmAlert;
