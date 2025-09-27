@@ -36,6 +36,7 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle,
 } from "./ui/alert-dialog";
+import { ConfirmDialog } from "./blocks/confirm-dialog";
 import { Button, buttonVariants } from "./ui/button";
 
 import { type Database } from "../../database.types";
@@ -155,31 +156,22 @@ export function NavMain({ items }: { items: Chat[] }) {
 				</DialogContent>
 			</Dialog>
 
-			{/* Delete Confirmation AlertDialog */}
-			<AlertDialog
+			{/* Delete Confirmation (reusable) */}
+			<ConfirmDialog
 				open={!!deleteTarget}
 				onOpenChange={() => setDeleteTarget(null)}
-			>
-				<AlertDialogContent>
-					<AlertDialogHeader>
-						<AlertDialogTitle>Delete Chat</AlertDialogTitle>
-						<AlertDialogDescription>
-							Are you sure you want to delete{" "}
-							<span className="font-medium">{deleteTarget?.title}</span>? This
-							action cannot be undone.
-						</AlertDialogDescription>
-					</AlertDialogHeader>
-					<AlertDialogFooter>
-						<AlertDialogCancel>Cancel</AlertDialogCancel>
-						<AlertDialogAction
-							onClick={handleDeleteChat}
-							className={buttonVariants({ variant: "destructive" })}
-						>
-							Delete
-						</AlertDialogAction>
-					</AlertDialogFooter>
-				</AlertDialogContent>
-			</AlertDialog>
+				title="Delete Chat"
+				description={
+					<>
+						Are you sure you want to delete{" "}
+						<span className="font-medium">{deleteTarget?.title}</span>? This
+						action cannot be undone.
+					</>
+				}
+				confirmLabel="Delete"
+				variant="destructive"
+				onConfirm={handleDeleteChat}
+			/>
 		</>
 	);
 }
