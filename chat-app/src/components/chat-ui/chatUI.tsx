@@ -18,6 +18,7 @@ import {
 	PromptInputTools,
 } from "../ai-elements/prompt-input";
 import { Button } from "../ui/button";
+import { ActionDialog } from "../blocks/action-dialog";
 
 const SUGGESTIONS = [
 	"How do I make buttons accessible?",
@@ -38,6 +39,7 @@ export default function ChatUI({
 	const [input, setInput] = useState(initialPendingMessage || "");
 	const [chatId] = useState<string | null>(initialChatId || null);
 	const loadingState = useLoadingState("initializing");
+	const [showSaveDialog, setShowSaveDialog] = useState(false);
 
 	const mode: "authenticated" | "unauthenticated" =
 		user && user.id ? "authenticated" : "unauthenticated";
@@ -247,6 +249,32 @@ export default function ChatUI({
 		}
 	}, [mode, input, messages.length]);
 
+	// Check if we should show the save dialog when messages reach 10
+	useEffect(() => {
+		if (mode === "unauthenticated" && messages.length >= 10) {
+			setShowSaveDialog(true);
+		}
+	}, [mode, messages.length]);
+
+	// Add beforeunload event listener for tab close detection
+	useEffect(() => {
+		if (mode === "unauthenticated") {
+			const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+				const storedMessages = loadMessagesFromSession();
+				if (storedMessages.length > 0 || messages.length > 0) {
+					event.preventDefault();
+					setShowSaveDialog(true);
+					return (event.returnValue =
+						"You have unsaved chat messages. Are you sure you want to leave?");
+				}
+			};
+
+			window.addEventListener("beforeunload", handleBeforeUnload);
+			return () =>
+				window.removeEventListener("beforeunload", handleBeforeUnload);
+		}
+	}, [mode, messages.length]);
+
 	// Clear chat handler (unauthenticated mode only)
 	const handleClearChat = () => {
 		if (mode === "unauthenticated") {
@@ -388,6 +416,13 @@ export default function ChatUI({
 					</div>
 				)}
 			</div>
+
+			{/* Temp Chat Save Dialog */}
+			<ActionDialog
+				open={showSaveDialog}
+				onOpenChange={setShowSaveDialog}
+				messageCount={messages.length}
+			/>
 		</div>
 	);
 }
