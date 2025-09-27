@@ -19,7 +19,7 @@ import { navigate } from "astro:transitions/client";
 import { actions } from "astro:actions";
 import { toast } from "sonner";
 import { ActionDialog } from "./blocks/action-dialog";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ConfirmAlert } from "./blocks/confirm-alert";
 import { Button, buttonVariants } from "./ui/button";
 
@@ -33,6 +33,12 @@ export function NavMain({ items }: { items: Chat[] }) {
 	const [renameTarget, setRenameTarget] = useState<Chat | null>(null);
 	const [deleteTarget, setDeleteTarget] = useState<Chat | null>(null);
 	const [newTitle, setNewTitle] = useState("");
+
+	// Keep a local copy of items so we can update the UI immediately after
+	// renaming without requiring a full page refresh. Sync when parent prop
+	// changes.
+	const [localItems, setLocalItems] = useState<Chat[]>(items);
+	useEffect(() => setLocalItems(items), [items]);
 
 	// Rename handler — returns true when the rename succeeded
 	const handleRename = async () => {
@@ -51,8 +57,14 @@ export function NavMain({ items }: { items: Chat[] }) {
 			toast.error(res.data?.message);
 			return false;
 		} else {
-			toast.success("Chat renamed successfully");
+			// Update local list so UI updates immediately without refresh
 			setNewTitle("");
+			setLocalItems((prev) =>
+				prev.map((c) =>
+					c.id === renameTarget.id ? { ...c, title: trimmed } : c
+				)
+			);
+			toast.success("Chat renamed successfully");
 			return true;
 		}
 	};
@@ -75,7 +87,7 @@ export function NavMain({ items }: { items: Chat[] }) {
 		<>
 			<SidebarGroup>
 				<SidebarMenu>
-					{items.map((item) => (
+					{localItems.map((item) => (
 						<SidebarMenuItem key={item.id} className="flex items-center">
 							<SidebarMenuButton
 								className="flex-1 text-left"
