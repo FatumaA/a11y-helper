@@ -18,13 +18,7 @@ import {
 import { navigate } from "astro:transitions/client";
 import { actions } from "astro:actions";
 import { toast } from "sonner";
-import {
-	Dialog,
-	DialogContent,
-	DialogFooter,
-	DialogHeader,
-	DialogTitle,
-} from "./ui/dialog";
+import { ActionDialog } from "./blocks/action-dialog";
 import { useState } from "react";
 import { ConfirmAlert } from "./blocks/confirm-alert";
 import { Button, buttonVariants } from "./ui/button";
@@ -40,21 +34,27 @@ export function NavMain({ items }: { items: Chat[] }) {
 	const [deleteTarget, setDeleteTarget] = useState<Chat | null>(null);
 	const [newTitle, setNewTitle] = useState("");
 
-	// Rename handler
+	// Rename handler — returns true when the rename succeeded
 	const handleRename = async () => {
-		if (!renameTarget) return;
+		if (!renameTarget) return false;
+		const trimmed = newTitle.trim();
+		if (!trimmed) {
+			toast.error("Title cannot be empty");
+			return false;
+		}
 		const res = await actions.updateChat({
 			activeChatId: renameTarget.id,
-			newTitle,
+			newTitle: trimmed,
 		});
 
 		if (!res.data?.success) {
 			toast.error(res.data?.message);
+			return false;
 		} else {
 			toast.success("Chat renamed successfully");
+			setNewTitle("");
+			return true;
 		}
-		setRenameTarget(null);
-		setNewTitle("");
 	};
 
 	// Delete handler
@@ -125,26 +125,29 @@ export function NavMain({ items }: { items: Chat[] }) {
 			</SidebarGroup>
 
 			{/* Rename Dialog */}
-			<Dialog open={!!renameTarget} onOpenChange={() => setRenameTarget(null)}>
-				<DialogContent>
-					<DialogHeader>
-						<DialogTitle>Rename Chat</DialogTitle>
-					</DialogHeader>
+			<ActionDialog
+				open={!!renameTarget}
+				onOpenChange={(open) => !open && setRenameTarget(null)}
+				title="Rename Chat"
+				description={
 					<input
 						className="w-full rounded border p-2"
 						value={newTitle}
 						onChange={(e) => setNewTitle(e.target.value)}
-						onKeyDown={(e) => e.key === "Enter" && handleRename()}
+						onKeyDown={async (e) => {
+							if (e.key === "Enter") {
+								const ok = await handleRename();
+								if (ok) setRenameTarget(null);
+							}
+						}}
 						autoFocus
 					/>
-					<DialogFooter>
-						<Button variant="outline" onClick={() => setRenameTarget(null)}>
-							Cancel
-						</Button>
-						<Button onClick={handleRename}>Rename</Button>
-					</DialogFooter>
-				</DialogContent>
-			</Dialog>
+				}
+				actionLabel="Rename"
+				onAction={handleRename}
+				actionDisabled={!newTitle.trim()}
+				authRedirect={false}
+			/>
 
 			{/* Delete Confirmation (reusable) */}
 			<ConfirmAlert
