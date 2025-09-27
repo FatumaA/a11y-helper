@@ -26,17 +26,7 @@ import {
 	DialogTitle,
 } from "./ui/dialog";
 import { useState } from "react";
-import {
-	AlertDialog,
-	AlertDialogAction,
-	AlertDialogCancel,
-	AlertDialogContent,
-	AlertDialogDescription,
-	AlertDialogFooter,
-	AlertDialogHeader,
-	AlertDialogTitle,
-} from "./ui/alert-dialog";
-import { ConfirmDialog } from "./blocks/confirm-dialog";
+import { ConfirmAlert } from "./blocks/confirm-alert";
 import { Button, buttonVariants } from "./ui/button";
 
 import { type Database } from "../../database.types";
@@ -157,7 +147,7 @@ export function NavMain({ items }: { items: Chat[] }) {
 			</Dialog>
 
 			{/* Delete Confirmation (reusable) */}
-			<ConfirmDialog
+			<ConfirmAlert
 				open={!!deleteTarget}
 				onOpenChange={() => setDeleteTarget(null)}
 				title="Delete Chat"

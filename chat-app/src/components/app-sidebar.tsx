@@ -23,16 +23,6 @@ import { actions } from "astro:actions";
 import { NavMain } from "./nav-main";
 import { Button, buttonVariants } from "./ui/button";
 import {
-	AlertDialog,
-	AlertDialogAction,
-	AlertDialogCancel,
-	AlertDialogContent,
-	AlertDialogDescription,
-	AlertDialogFooter,
-	AlertDialogHeader,
-	AlertDialogTitle,
-} from "./ui/alert-dialog";
-import {
 	Dialog,
 	DialogContent,
 	DialogFooter,
@@ -50,7 +40,7 @@ import { toast } from "sonner";
 import { clearUser, userStore } from "@/stores/userStore";
 import { useStore } from "@nanostores/react";
 import { navigate } from "astro:transitions/client";
-import { ConfirmDialog } from "./blocks/confirm-dialog";
+import { ConfirmAlert } from "./blocks/confirm-alert";
 
 type Chat = Database["public"]["Tables"]["chats"]["Row"];
 type Theme = "light" | "dark" | "system";
@@ -289,7 +279,7 @@ export function AppSidebar() {
 			</Dialog>
 
 			{/* Confirm Delete All Chats */}
-			<ConfirmDialog
+			<ConfirmAlert
 				open={confirmDeleteAll}
 				onOpenChange={setConfirmDeleteAll}
 				description={
