@@ -41,6 +41,7 @@ export default function ChatUI({
 	const loadingState = useLoadingState("initializing");
 	const [showSaveDialog, setShowSaveDialog] = useState(false);
 	const [dismissedAtCount, setDismissedAtCount] = useState<number | null>(null);
+	const [hasTempMessages, setHasTempMessages] = useState(false);
 
 	const mode: "authenticated" | "unauthenticated" =
 		user && user.id ? "authenticated" : "unauthenticated";
@@ -165,6 +166,7 @@ export default function ChatUI({
 			} else {
 				// Unauthenticated mode: load from sessionStorage
 				const storedMessages = loadMessagesFromSession();
+				setHasTempMessages(storedMessages.length > 0);
 				if (storedMessages.length > 0) {
 					setMessages(storedMessages);
 				}
@@ -303,17 +305,12 @@ export default function ChatUI({
 		<div className="flex flex-col max-w-4xl w-full">
 			{/* Chat Messages */}
 			<Conversation className="overflow-hidden p-4 space-y-4">
-				{/* !loadingState.isReady && (
-					<div>
-						{loadingState.current === "initializing" && <ChatLoadingSkeleton />}
-						{loadingState.current === "loading_chat" && <ChatLoadingSkeleton />}
-					</div>
-				) */}
-
 				{!loadingState.isReady && (
 					<div>
-						{loadingState.current === "initializing" && <ChatLoadingSkeleton />}
-						{loadingState.current === "loading_chat" && <ChatLoadingSkeleton />}
+						{((mode === "unauthenticated" && hasTempMessages) ||
+							(mode === "authenticated" &&
+								loadingState.current === "loading_chat" &&
+								chatId)) && <ChatLoadingSkeleton />}
 					</div>
 				)}
 
