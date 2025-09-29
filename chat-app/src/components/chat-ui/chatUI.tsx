@@ -19,6 +19,7 @@ import {
 } from "../ai-elements/prompt-input";
 import { Button } from "../ui/button";
 import { ActionDialog } from "../blocks/action-dialog";
+import { MessageSquare } from "lucide-react";
 
 const SUGGESTIONS = [
 	"How do I make buttons accessible?",
@@ -319,12 +320,19 @@ export default function ChatUI({
 
 				{messages.length === 0 && (
 					<div className="text-center text-muted-foreground mt-10 transition-opacity duration-500 ease-out opacity-100">
-						<div className="max-w-md mx-auto">
-							<h2 className="text-2xl font-bold mb-2 text-foreground">
+						<div className="max-w-md mx-auto text-center mb-8">
+							{/* TODO: add some visual element here */}
+							{/* <div className="flex items-center justify-center mb-4">
+								<div className="bg-primary/10 p-3 rounded-full">
+									<MessageSquare className="h-8 w-8 text-primary" />
+								</div>
+							</div> */}
+							<h1 className="text-3xl font-bold mb-2 text-foreground">
 								WCAG Accessibility Assistant
-							</h2>
-							<p className="mb-4">
-								Ask anything about web accessibility guidelines!
+							</h1>
+							<p className="text-lg text-muted-foreground max-w-2xl">
+								Ask anything about web accessibility guidelines, get
+								implementation best practices, and code examples.
 							</p>
 						</div>
 					</div>
