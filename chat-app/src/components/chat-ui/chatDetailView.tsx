@@ -17,15 +17,12 @@ export default function ChatDetailView({ chatId }: ChatDetailViewProps) {
 
 	useEffect(() => {
 		const initialize = () => {
-			// Pick up pending message from URL parameters
-			const urlParams = new URLSearchParams(window.location.search);
-			const messageParam = urlParams.get("message");
-			if (messageParam) {
-				setInitialPendingMessage(decodeURIComponent(messageParam));
-				// Clean up the URL by removing the parameter
-				const cleanUrl = new URL(window.location.href);
-				cleanUrl.searchParams.delete("message");
-				window.history.replaceState({}, "", cleanUrl.pathname);
+			// Pick up pending message from navigation state
+			const navigationState = window.history.state;
+			if (navigationState?.initialMessage) {
+				setInitialPendingMessage(navigationState.initialMessage);
+				// Clear the state to prevent reuse on refresh
+				window.history.replaceState({}, "", window.location.pathname);
 			}
 
 			setIsLoading(false);

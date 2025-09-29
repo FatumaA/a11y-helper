@@ -16,7 +16,8 @@ const SUGGESTIONS = [
 
 export default function ChatDashboard() {
 	const user = useStore(userStore);
-	const [isCreating, setIsCreating] = useState(false);
+	const [isCreatingNew, setIsCreatingNew] = useState(false);
+	const [creatingSuggestion, setCreatingSuggestion] = useState<string | null>(null);
 
 	const handleNewChat = async () => {
 		if (!user?.id) {
@@ -24,20 +25,20 @@ export default function ChatDashboard() {
 			return;
 		}
 
-		setIsCreating(true);
+		setIsCreatingNew(true);
 		try {
 			const result = await actions.createChat({ activeUserId: user.id });
 			if (result.data?.success) {
 				const chat = result.data.message as any;
-				navigate(`/chat/${chat.id}`);
+				return navigate(`/chat/${chat.id}`);
 			} else {
 				toast.error("Failed to create new chat");
+				setIsCreatingNew(false);
 			}
 		} catch (error) {
 			console.error("Failed to create chat:", error);
 			toast.error("Failed to create new chat");
-		} finally {
-			setIsCreating(false);
+			setIsCreatingNew(false);
 		}
 	};
 
@@ -47,22 +48,24 @@ export default function ChatDashboard() {
 			return;
 		}
 
-		setIsCreating(true);
+		setCreatingSuggestion(suggestion);
 		try {
 			// Create the chat
 			const result = await actions.createChat({ activeUserId: user.id });
 			if (result.data?.success) {
 				const chat = result.data.message as any;
-				// Navigate with the suggestion as a URL parameter
-				navigate(`/chat/${chat.id}?message=${encodeURIComponent(suggestion)}`);
+				// Navigate with the suggestion via navigation state
+				return navigate(`/chat/${chat.id}`, {
+					state: { initialMessage: suggestion },
+				});
 			} else {
 				toast.error("Failed to create new chat");
+				setCreatingSuggestion(null);
 			}
 		} catch (error) {
 			console.error("Failed to create chat:", error);
 			toast.error("Failed to create new chat");
-		} finally {
-			setIsCreating(false);
+			setCreatingSuggestion(null);
 		}
 	};
 
@@ -80,12 +83,12 @@ export default function ChatDashboard() {
 			<div className="mb-8">
 				<Button
 					onClick={handleNewChat}
-					disabled={isCreating}
+					disabled={isCreatingNew}
 					size="lg"
 					className="text-lg px-4 py-3 h-auto"
 				>
 					<Plus className="mr-2 h-4 w-4" />
-					{isCreating ? "Creating..." : "Start New Conversation"}
+					{isCreatingNew ? "Creating..." : "Start New Conversation"}
 				</Button>
 			</div>
 
@@ -98,18 +101,23 @@ export default function ChatDashboard() {
 				</div>
 
 				<div className="grid gap-3 md:grid-cols-2">
-					{SUGGESTIONS.map((suggestion) => (
-						<Button
-							key={suggestion}
-							variant="outline"
-							onClick={() => handleSuggestionClick(suggestion)}
-							disabled={isCreating}
-							className="text-left justify-start h-auto py-4 px-4 hover:bg-muted/50 transition-colors"
-						>
-							<MessageSquare className="h-4 w-4 mr-3 flex-shrink-0 text-muted-foreground" />
-							<span className="text-sm">{suggestion}</span>
-						</Button>
-					))}
+					{SUGGESTIONS.map((suggestion, index) => {
+						const isCreating = creatingSuggestion === suggestion;
+						return (
+							<Button
+								key={index}
+								variant="outline"
+								onClick={() => handleSuggestionClick(suggestion)}
+								disabled={isCreating}
+								className="text-left justify-start h-auto py-4 px-4 hover:bg-muted/50 transition-colors"
+							>
+								<MessageSquare className="h-4 w-4 mr-3 flex-shrink-0 text-muted-foreground" />
+								<span className="text-sm">
+									{isCreating ? "Creating..." : suggestion}
+								</span>
+							</Button>
+						);
+					})}
 				</div>
 			</div>
 
