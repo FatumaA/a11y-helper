@@ -52,7 +52,7 @@ export function NavMain({ items }: { items: Chat[] }) {
 		});
 
 		if (!res.data?.success) {
-			toast.error(res.data?.message);
+			toast.error(res.data?.message as string);
 			return false;
 		} else {
 			// Update local list so UI updates immediately without refresh
@@ -73,10 +73,10 @@ export function NavMain({ items }: { items: Chat[] }) {
 		const res = await actions.deleteChat({ activeChatId: deleteTarget.id });
 
 		if (!res.data?.success) {
-			toast.error(res.data?.message);
+			toast.error(res.data?.message as string);
 		} else {
-			navigate("/chat");
 			toast.success("Chat deleted successfully");
+			navigate("/chat");
 		}
 		setDeleteTarget(null);
 	};
