@@ -115,7 +115,7 @@ export function AppSidebar() {
 	};
 
 	return (
-		<Sidebar>
+		<Sidebar className="mt-16">
 			<SidebarHeader>
 				<SidebarMenu>
 					<SidebarMenuItem>
