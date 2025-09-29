@@ -202,17 +202,25 @@ export default function ChatUI({
 		}
 	};
 
-	// Save messages (database for auth, sessionStorage for unauth)
+	// Combined: (a) pre-save when user starts typing (unauth), (b) persist messages when ready
 	useEffect(() => {
+		// Pre-save when user begins typing in unauthenticated mode and there are no messages yet
+		if (
+			mode === "unauthenticated" &&
+			input.length === 1 &&
+			messages.length === 0
+		) {
+			saveMessagesToSession([]);
+		}
+
+		// Only persist once initialization is complete and there are messages
 		if (!loadingState.isReady || messages.length === 0) return;
 
 		if (mode === "authenticated") {
-			// Save user message to database
-			const saveUserMessage = async () => {
-				if (!chatId || !user?.id) return;
-
-				const lastMessage = messages[messages.length - 1];
-				if (lastMessage?.role === "user") {
+			// Save user message to database (only the latest user message)
+			const lastMessage = messages[messages.length - 1];
+			if (lastMessage?.role === "user" && chatId && user?.id) {
+				(async () => {
 					try {
 						await actions.insertChatMsg({
 							chat_id: chatId,
@@ -235,26 +243,21 @@ export default function ChatUI({
 					} catch (error) {
 						console.error("Failed to save user message:", error);
 					}
-				}
-			};
-			saveUserMessage();
+				})();
+			}
 		} else {
-			// Save messages to sessionStorage
+			// Unauthenticated: persist to session storage
 			saveMessagesToSession(messages);
 		}
-	}, [mode, messages, messages.length, chatId, user?.id, loadingState.isReady]);
-
-	// Save to sessionStorage when user starts typing (for unauth mode)
-	useEffect(() => {
-		if (
-			mode === "unauthenticated" &&
-			input.length === 1 &&
-			messages.length === 0
-		) {
-			// User just started typing and there are no messages yet
-			saveMessagesToSession([]);
-		}
-	}, [mode, input, messages.length]);
+	}, [
+		mode,
+		messages,
+		input,
+		chatId,
+		user?.id,
+		loadingState.isReady,
+		// saveMessagesToSession is stable (declared above) so not added to deps
+	]);
 
 	// Check if we should show the save dialog when messages reach 10
 	useEffect(() => {
