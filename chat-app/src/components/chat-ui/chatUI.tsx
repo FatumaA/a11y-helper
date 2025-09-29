@@ -331,8 +331,9 @@ export default function ChatUI({
 								WCAG Accessibility Assistant
 							</h1>
 							<p className="text-lg text-muted-foreground max-w-2xl">
-								Ask anything about web accessibility guidelines, get
-								implementation best practices, and code examples.
+								{window.location.pathname !== "/"
+									? "Ask anything about web accessibility guidelines!"
+									: "Ask anything about web accessibility guidelines, get implementation best practices, and code examples."}
 							</p>
 						</div>
 					</div>
