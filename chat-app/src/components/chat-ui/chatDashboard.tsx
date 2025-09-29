@@ -8,9 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Plus, MessageSquare, Zap } from "lucide-react";
 
 const SUGGESTIONS = [
-	"How do I make buttons accessible?",
 	"Color contrast requirements",
-	"WCAG 2.1.1 keyboard navigation",
 	"Screen reader best practices",
 	"Form accessibility guidelines",
 	"Focus management techniques",
@@ -71,19 +69,12 @@ export default function ChatDashboard() {
 	return (
 		<div className="flex flex-col items-center justify-center min-h-[80vh] max-w-4xl mx-auto px-6">
 			<div className="text-center mb-8">
-				<div className="flex items-center justify-center mb-4">
-					<div className="bg-primary/10 p-3 rounded-full">
-						<MessageSquare className="h-8 w-8 text-primary" />
-					</div>
-				</div>
 				<h1 className="text-3xl font-bold mb-2 text-foreground">
 					WCAG Accessibility Assistant
 				</h1>
 				<p className="text-lg text-muted-foreground max-w-2xl">
-					Get expert on web accessibility guidelines, implementation best
-					practices, and code examples.
+					Ask anything about web accessibility guidelines!
 				</p>
-				guidance
 			</div>
 
 			<div className="mb-8">
@@ -91,9 +82,9 @@ export default function ChatDashboard() {
 					onClick={handleNewChat}
 					disabled={isCreating}
 					size="lg"
-					className="text-lg px-8 py-6 h-auto"
+					className="text-lg px-4 py-3 h-auto"
 				>
-					<Plus className="mr-2 h-5 w-5" />
+					<Plus className="mr-2 h-4 w-4" />
 					{isCreating ? "Creating..." : "Start New Conversation"}
 				</Button>
 			</div>
