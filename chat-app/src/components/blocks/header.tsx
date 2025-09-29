@@ -55,7 +55,7 @@ const Header = () => {
 			<a
 				href="/"
 				aria-label="Home"
-				className="cursor-pointer bg-primary/10 p-2 rounded-full"
+				className="cursor-pointer bg-primary/20 p-2 rounded-full"
 			>
 				<Accessibility className="w-7 h-7 text-primary" />
 			</a>
