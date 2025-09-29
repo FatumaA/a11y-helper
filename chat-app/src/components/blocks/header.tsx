@@ -51,7 +51,7 @@ const Header = () => {
 
 	const isSignedIn = user ? true : false;
 	return (
-		<div className="flex justify-between items-center h-16 mx-8 sticky top-0 z-100 border-b-2 border-b-accent">
+		<div className="fixed top-0 left-0 right-0 h-16 px-8 flex justify-between items-center z-50 border-b-2 border-b-accent bg-background/95 backdrop-blur-sm">
 			<a
 				href="/"
 				aria-label="Home"
