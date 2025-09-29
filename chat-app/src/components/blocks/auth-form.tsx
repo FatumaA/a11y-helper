@@ -45,7 +45,7 @@ export function AuthForm({
 		try {
 			const { data } = await actions.magicAuth(formData);
 			if (data?.success) {
-				toast.success(data.message);
+				toast.success(data.message as string);
 			} else {
 				toast.error("Sign in error, please try again.");
 				setIsMagicLoading(false);
