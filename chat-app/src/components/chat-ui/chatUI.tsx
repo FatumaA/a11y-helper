@@ -8,7 +8,11 @@ import { toast } from "sonner";
 import { useLoadingState } from "@/hooks/useLoadingState";
 import { ChatLoadingSkeleton } from "@/components/chat-ui/chat-skeleton";
 import { Conversation } from "@/components/ai-elements/conversation";
-import { Message, MessageContent } from "@/components/ai-elements/message";
+import {
+	Message,
+	MessageAvatar,
+	MessageContent,
+} from "@/components/ai-elements/message";
 import { Response } from "@/components/ai-elements/response";
 import {
 	PromptInput,
@@ -19,7 +23,7 @@ import {
 } from "../ai-elements/prompt-input";
 import { Button } from "../ui/button";
 import { ActionDialog } from "../blocks/action-dialog";
-import { MessageSquare } from "lucide-react";
+import { Bot, MessageSquare } from "lucide-react";
 
 const SUGGESTIONS = [
 	"How do I make buttons accessible?",
@@ -343,6 +347,16 @@ export default function ChatUI({
 					<div className="space-y-4">
 						{messages.map((message) => (
 							<Message key={message.id} from={message.role}>
+								{message.role === "user" ? (
+									<MessageAvatar
+										src={user !== null ? user.avatarUrl || user.email : ""}
+										name={user?.email}
+									/>
+								) : (
+									<div className="size-8 ring-1 ring-border rounded-full bg-primary/10 flex items-center justify-center">
+										<Bot className="h-4 w-4 text-primary" />
+									</div>
+								)}
 								<MessageContent>
 									{message.parts.map((part, idx) => {
 										if (part.type === "text") {
