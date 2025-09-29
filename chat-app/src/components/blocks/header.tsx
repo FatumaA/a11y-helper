@@ -51,8 +51,12 @@ const Header = () => {
 
 	const isSignedIn = user ? true : false;
 	return (
-		<div className="flex justify-between my-4 mx-8 sticky top-0 z-10">
-			<a href="/" aria-label="Home" className="cursor-pointer">
+		<div className="flex justify-between items-center h-16 mx-8 sticky top-0 z-100 border-b-2 border-b-accent">
+			<a
+				href="/"
+				aria-label="Home"
+				className="cursor-pointer bg-primary/10 p-2 rounded-full"
+			>
 				<Accessibility className="w-7 h-7 text-primary" />
 			</a>
 			<div className="flex items-center gap-4">
