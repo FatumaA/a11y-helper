@@ -29,6 +29,7 @@ type Chat = Database["public"]["Tables"]["chats"]["Row"];
 
 export function NavMain({ items }: { items: Chat[] }) {
 	const { isMobile } = useSidebar();
+	const currentPath = window.location.pathname;
 
 	const [renameTarget, setRenameTarget] = useState<Chat | null>(null);
 	const [deleteTarget, setDeleteTarget] = useState<Chat | null>(null);
@@ -92,6 +93,7 @@ export function NavMain({ items }: { items: Chat[] }) {
 							<SidebarMenuButton
 								className="flex-1 text-left"
 								onClick={() => navigate(`/chat/${item.id}`)}
+								isActive={currentPath === `/chat/${item.id}`}
 							>
 								{item.title}
 							</SidebarMenuButton>
