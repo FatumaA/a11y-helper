@@ -35,15 +35,13 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
-import { type Database } from "../../database.types";
 import { toast } from "sonner";
-import { clearUser, userStore } from "@/stores/userStore";
+import { userStore } from "@/stores/userStore";
 import { useStore } from "@nanostores/react";
 import { navigate } from "astro:transitions/client";
 import { ConfirmAlert } from "./blocks/confirm-alert";
-import { themeStore, setTheme, type Theme } from "@/stores/themeStore";
-
-type Chat = Database["public"]["Tables"]["chats"]["Row"];
+import { themeStore, setTheme } from "@/stores/themeStore";
+import type { Chat } from "@/lib/types";
 
 declare global {
 	interface Window {

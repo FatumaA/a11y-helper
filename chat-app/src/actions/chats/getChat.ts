@@ -1,9 +1,7 @@
 import { supabaseServerClient } from "@/lib/supabase";
+import type { Chat } from "@/lib/types";
 import { defineAction, type ActionAPIContext } from "astro:actions";
 import { z } from "astro:schema";
-import { type Database } from "../../../database.types";
-
-type Chat = Database["public"]["Tables"]["chats"]["Row"];
 
 type GetChatResult = {
 	success: boolean;

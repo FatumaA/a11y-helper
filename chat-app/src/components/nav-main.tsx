@@ -22,10 +22,7 @@ import { ActionDialog } from "./blocks/action-dialog";
 import { useState, useEffect } from "react";
 import { ConfirmAlert } from "./blocks/confirm-alert";
 import { Button, buttonVariants } from "./ui/button";
-
-import { type Database } from "../../database.types";
-
-type Chat = Database["public"]["Tables"]["chats"]["Row"];
+import type { Chat } from "@/lib/types";
 
 export function NavMain({ items }: { items: Chat[] }) {
 	const { isMobile } = useSidebar();

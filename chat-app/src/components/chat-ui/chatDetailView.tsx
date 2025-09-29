@@ -1,9 +1,6 @@
 import { useEffect, useState } from "react";
 import { ChatLoadingSkeleton } from "@/components/chat-ui/chat-skeleton";
 import ChatUI from "./chatUI";
-import { type Database } from "../../../database.types";
-
-type Chat = Database["public"]["Tables"]["chats"]["Row"];
 
 interface ChatDetailViewProps {
 	chatId: string;

@@ -1,9 +1,7 @@
 import { defineAction, type ActionAPIContext } from "astro:actions";
 import { z } from "astro:schema";
 import { supabaseServerClient } from "@/lib/supabase";
-import { type Database } from "../../../../database.types";
-
-type Chat = Database["public"]["Tables"]["chats"]["Row"];
+import type { Chat } from "@/lib/types";
 
 const createDBChat = async (
 	activeUserId: string,
