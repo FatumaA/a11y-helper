@@ -82,32 +82,6 @@ export function AppSidebar() {
 		fetchChats();
 	}, []);
 
-	const handleDeleteAccount = async () => {
-		if (!user?.id) {
-			return;
-		}
-
-		try {
-			const res = await actions.deleteAccount({
-				activeUserId: user.id,
-			});
-
-			if (res.data?.success) {
-				toast.success("Account deleted successfully");
-				clearUser();
-				navigate("/");
-			} else {
-				toast.error(
-					res.data?.message ?? "Failed to delete account, please try again"
-				);
-			}
-		} catch (error) {
-			console.error("Error deleting account:", error);
-			toast.error("An error occurred, please try again");
-			setConfirmDelete(false);
-		}
-	};
-
 	// Delete all handler
 	const handleDeleteAllChats = async () => {
 		if (!user?.id) return;
