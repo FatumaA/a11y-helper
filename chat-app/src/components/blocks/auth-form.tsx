@@ -120,13 +120,7 @@ export function AuthForm({
 								className="w-full"
 								disabled={isMagicLoading}
 							>
-								{isMagicLoading
-									? isSignUp
-										? "Sending..."
-										: "Sending..."
-									: isSignUp
-									? "Send Sign Up Link"
-									: "Send Sign In Link"}
+								{isMagicLoading ? "Sending..." : "Send Link"}
 							</Button>
 						</div>
 					</form>
@@ -142,11 +136,7 @@ export function AuthForm({
 						disabled={isGoogleLoading}
 						onClick={handleGoogleLogin}
 					>
-						{isGoogleLoading
-							? "Redirecting..."
-							: isSignUp
-							? "Continue with Google (Sign Up)"
-							: "Continue with Google"}
+						{isGoogleLoading ? "Redirecting..." : "Continue with Google"}
 					</Button>
 				</CardContent>
 			</Card>
