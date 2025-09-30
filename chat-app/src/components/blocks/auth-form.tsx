@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils";
 import { supabaseBrowserClient } from "@/lib/supabase";
+import { Turnstile } from "@marsidev/react-turnstile";
 import { Button } from "@/components/ui/button";
 import {
 	Card,
@@ -23,6 +24,7 @@ export function AuthForm({
 	const [isMagicLoading, setIsMagicLoading] = useState(false);
 	const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 	const [actionType, setActionType] = useState<string>("sign-in");
+	const [captchaToken, setCaptchaToken] = useState<string | undefined>();
 
 	useEffect(() => {
 		// Read from browser history state
@@ -35,12 +37,24 @@ export function AuthForm({
 
 	const supabase = supabaseBrowserClient;
 
+	const captchaSiteKey =
+		import.meta.env.MODE === "production"
+			? import.meta.env.PUBLIC_TURNSTILE_SITE_KEY_PROD
+			: import.meta.env.PUBLIC_TURNSTILE_SITE_KEY_LOCAL;
+
 	const handleMagicLinkLogin = async (e: React.FormEvent) => {
 		e.preventDefault();
+
+		if (!captchaToken) {
+			toast.error("Please complete the captcha verification.");
+			return;
+		}
+
 		setIsMagicLoading(true);
 
 		const formData = new FormData();
 		formData.append("email", email);
+		formData.append("captchaToken", captchaToken);
 
 		try {
 			const { data } = await actions.magicAuth(formData);
@@ -115,10 +129,19 @@ export function AuthForm({
 								/>
 							</div>
 							{error && <p className="text-sm text-red-500">{error}</p>}
+							<Turnstile
+								siteKey={captchaSiteKey}
+								onSuccess={(token) => setCaptchaToken(token)}
+								onError={() => {
+									setCaptchaToken(undefined);
+									toast.error("Captcha verification failed. Please try again.");
+								}}
+								onExpire={() => setCaptchaToken(undefined)}
+							/>
 							<Button
 								type="submit"
 								className="w-full"
-								disabled={isMagicLoading}
+								disabled={isMagicLoading || !captchaToken}
 							>
 								{isMagicLoading ? "Sending..." : "Send Link"}
 							</Button>

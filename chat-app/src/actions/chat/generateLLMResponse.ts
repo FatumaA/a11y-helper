@@ -1,30 +1,61 @@
 import { defineAction, type ActionAPIContext } from "astro:actions";
 import { z } from "astro:schema";
-import { createClient } from "@supabase/supabase-js";
-import { embed, embedMany } from "ai";
+import { embed } from "ai";
 import { createCohere } from "@ai-sdk/cohere";
 import { supabasePrivateClient } from "@/lib/supabase";
+
+const cohereKey =
+	import.meta.env.MODE === "production"
+		? import.meta.env.COHERE_API_KEY
+		: import.meta.env.COHERE_API_KEY_LOCAL;
 
 const generateLLMResponse = async (
 	userInput: string,
 	context: ActionAPIContext
 ) => {
 	try {
+		// 1. Input validation
+		const trimmedInput = userInput.trim();
+
+		if (!trimmedInput) {
+			return {
+				success: false,
+				message: {
+					userInput,
+					results: [],
+					error: "Empty input",
+				},
+			};
+		}
+
+		// 2. Length validation (defense in depth - already validated in schema)
+		if (trimmedInput.length > 500) {
+			return {
+				success: false,
+				message: {
+					userInput,
+					results: [],
+					error: "Input too long",
+				},
+			};
+		}
+
 		const supabase = supabasePrivateClient({
 			request: context.request,
 			cookies: context.cookies,
 		});
 
-		const cohere = createCohere({ apiKey: import.meta.env.COHERE_API_KEY });
+		const cohere = createCohere({ apiKey: cohereKey });
 
-		// embed + supabase search …
+		// 3. Generate embedding (relies on Netlify timeout + Cohere limits)
 		const { embedding } = await embed({
 			model: cohere.textEmbeddingModel("embed-english-light-v3.0"),
-			value: userInput.trim(),
+			value: trimmedInput,
 		});
 
+		// 4. Search WCAG database
 		const { data: results, error } = await supabase.rpc("search_wcag_smart", {
-			user_query: userInput.trim(),
+			user_query: trimmedInput,
 			query_embedding: embedding,
 			match_count: 5,
 		});

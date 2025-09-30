@@ -7,17 +7,60 @@ export const POST: APIRoute = async (context) => {
 	const { request } = context;
 
 	try {
+		// 1. Origin validation - blocks requests from other domains
+		const origin = request.headers.get("origin");
+		const allowedOrigins = [
+			import.meta.env.PUBLIC_SITE_URL,
+			...(import.meta.env.DEV ? [import.meta.env.PUBLIC_SITE_URL_LOCAL] : []),
+		];
+
+		if (!origin || !allowedOrigins.some((allowed) => origin === allowed)) {
+			return new Response(JSON.stringify({ error: "Forbidden" }), {
+				status: 403,
+				headers: { "Content-Type": "application/json" },
+			});
+		}
+
+		// 2. Parse and validate request body
 		const { messages } = await request.json();
+
+		if (!messages || !Array.isArray(messages) || messages.length === 0) {
+			return new Response(JSON.stringify({ error: "Invalid message format" }), {
+				status: 400,
+				headers: { "Content-Type": "application/json" },
+			});
+		}
+
 		const userMessage = messages[messages.length - 1];
 
-		// upport both .content and .parts formats from ui
+		// Support both .content and .parts formats from ui
 		let content = userMessage?.content;
 		if (!content && Array.isArray(userMessage?.parts)) {
 			content = userMessage.parts.map((p: any) => p.text).join(" ");
 		}
 
-		if (!content) {
-			return new Response("Invalid message format", { status: 400 });
+		// 3. Validate content exists and is a string
+		if (!content || typeof content !== "string") {
+			return new Response(
+				JSON.stringify({ error: "Invalid message content" }),
+				{
+					status: 400,
+					headers: { "Content-Type": "application/json" },
+				}
+			);
+		}
+
+		// 4. Length validation - prevents token abuse
+		if (content.length > 500) {
+			return new Response(
+				JSON.stringify({
+					error: "Message too long. Please keep it under 500 characters.",
+				}),
+				{
+					status: 400,
+					headers: { "Content-Type": "application/json" },
+				}
+			);
 		}
 
 		// Get WCAG data from action
@@ -29,7 +72,14 @@ export const POST: APIRoute = async (context) => {
 		);
 
 		if (actionResult.error || !actionResult.data?.success) {
-			return new Response("Action failed", { status: 500 });
+			console.error("Action error:", actionResult.error);
+			return new Response(
+				JSON.stringify({ error: "Service temporarily unavailable" }),
+				{
+					status: 500,
+					headers: { "Content-Type": "application/json" },
+				}
+			);
 		}
 
 		// get data
@@ -89,6 +139,10 @@ export const POST: APIRoute = async (context) => {
 		});
 	} catch (error) {
 		console.error("Chat API error:", error);
-		return new Response("Internal server error", { status: 500 });
+		// Don't leak error details to client
+		return new Response(JSON.stringify({ error: "Internal server error" }), {
+			status: 500,
+			headers: { "Content-Type": "application/json" },
+		});
 	}
 };

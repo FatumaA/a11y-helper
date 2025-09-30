@@ -25,6 +25,10 @@ const activeUser = user
 	: null;
 
 const serializedUser = activeUser ? JSON.stringify(activeUser) : null;
+
+type Props = {
+	hideHeader?: boolean;
+};
 ---
 
 <!-- Combined script for flash prevention and user data -->
