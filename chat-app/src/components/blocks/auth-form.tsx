@@ -37,6 +37,11 @@ export function AuthForm({
 
 	const supabase = supabaseBrowserClient;
 
+	const captchaSiteKey =
+		import.meta.env.MODE === "production"
+			? import.meta.env.PUBLIC_TURNSTILE_SITE_KEY_PROD
+			: import.meta.env.PUBLIC_TURNSTILE_SITE_KEY_LOCAL;
+
 	const handleMagicLinkLogin = async (e: React.FormEvent) => {
 		e.preventDefault();
 
@@ -125,7 +130,7 @@ export function AuthForm({
 							</div>
 							{error && <p className="text-sm text-red-500">{error}</p>}
 							<Turnstile
-								siteKey={import.meta.env.PUBLIC_TURNSTILE_SITE_KEY_LOCAL}
+								siteKey={captchaSiteKey}
 								onSuccess={(token) => setCaptchaToken(token)}
 								onError={() => {
 									setCaptchaToken(undefined);
