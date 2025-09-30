@@ -40,7 +40,7 @@ const Header = () => {
 		try {
 			const { data } = await actions.signOut();
 			if (data?.success) {
-				toast.success(data.message);
+				toast.success(data.message as string);
 				clearUser();
 				navigate("/");
 			}
