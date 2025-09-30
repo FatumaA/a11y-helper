@@ -51,10 +51,10 @@ export const POST: APIRoute = async (context) => {
 		}
 
 		// 4. Length validation - prevents token abuse
-		if (content.length > 1000) {
+		if (content.length > 500) {
 			return new Response(
 				JSON.stringify({
-					error: "Message too long. Please keep it under 2000 characters.",
+					error: "Message too long. Please keep it under 500 characters.",
 				}),
 				{
 					status: 400,
