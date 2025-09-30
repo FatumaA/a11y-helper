@@ -8,8 +8,7 @@ const domain =
 		: "http://localhost:4321";
 
 const magicSignIn = async (
-	// { email, captchaToken }: { email: string; captchaToken: string },
-	{ email }: { email: string },
+	{ email, captchaToken }: { email: string; captchaToken: string },
 	context: ActionAPIContext
 ) => {
 	try {
@@ -22,7 +21,7 @@ const magicSignIn = async (
 		const { error } = await supabaseBE.auth.signInWithOtp({
 			email,
 			options: {
-				// captchaToken,
+				captchaToken,
 				emailRedirectTo: `${domain}/api/auth/confirm`,
 			},
 		});
@@ -55,7 +54,7 @@ export const magicAuth = defineAction({
 	accept: "form",
 	input: z.object({
 		email: z.string().email(),
-		// captchaToken: z.string(),
+		captchaToken: z.string(),
 	}),
 	handler: async (input, context) => {
 		return magicSignIn(input, context);
