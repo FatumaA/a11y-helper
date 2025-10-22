@@ -113,7 +113,7 @@ export function AppSidebar() {
 	};
 
 	return (
-		<Sidebar className="mt-16">
+		<Sidebar className="mt-[116px]">
 			<SidebarHeader>
 				<SidebarMenu>
 					<SidebarMenuItem>

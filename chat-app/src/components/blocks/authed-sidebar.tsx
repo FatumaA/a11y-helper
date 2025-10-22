@@ -17,7 +17,7 @@ export function AuthedSidebar({ children }: Props) {
 			<AppSidebar />
 
 			<div className="flex-1 flex flex-col">
-				<div className="fixed top-16 z-10">
+				<div className="fixed top-[116px] z-10">
 					<SidebarTrigger />
 				</div>
 				<div className="flex justify-center items-center min-h-screen">

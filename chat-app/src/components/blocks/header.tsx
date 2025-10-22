@@ -51,7 +51,7 @@ const Header = () => {
 
 	const isSignedIn = user ? true : false;
 	return (
-		<div className="fixed top-0 left-0 right-0 h-16 px-8 flex justify-between items-center z-50 border-b-2 border-b-accent bg-background/95 backdrop-blur-sm">
+		<div className="fixed top-[52px] left-0 right-0 h-16 px-8 flex justify-between items-center z-50 border-b-2 border-b-accent bg-background/95 backdrop-blur-sm">
 			<a
 				href="/"
 				aria-label="Home"
