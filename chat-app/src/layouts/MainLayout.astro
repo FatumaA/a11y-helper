@@ -2,6 +2,7 @@
 import "../styles/global.css";
 import { ClientRouter } from "astro:transitions";
 import Header from "../components/blocks/header";
+import { WipBanner } from "../components/blocks/wip-banner";
 import { supabaseServerClient } from "@/lib/supabase";
 import { Toaster } from "@/components/ui/sonner";
 
@@ -71,6 +72,7 @@ type Props = {
 
 	<body>
 		<Toaster richColors position="top-center" client:only="react" />
+		<WipBanner client:load />
 		{!hideHeader && <Header client:only="react" />}
 
 		<slot />
